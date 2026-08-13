@@ -19,7 +19,21 @@ export default function App() {
   const [status, setStatus] = useState<'idle' | 'pending' | 'denied'>('idle');
   const [pendingGuests, setPendingGuests] = useState<any[]>([]);
 
-  // Parse room code from raw input or pasted full URLs (e.g., https://app.com/room/abc-defg-hij)
+  // Track hosted rooms in LocalStorage
+  const markRoomAsHosted = (code: string) => {
+    const hostedRooms = JSON.parse(localStorage.getItem('hosted_rooms') || '[]');
+    if (!hostedRooms.includes(code)) {
+      hostedRooms.push(code);
+      localStorage.setItem('hosted_rooms', JSON.stringify(hostedRooms));
+    }
+  };
+
+  const isRoomHost = (code: string) => {
+    const hostedRooms = JSON.parse(localStorage.getItem('hosted_rooms') || '[]');
+    return hostedRooms.includes(code);
+  };
+
+  // Helper to extract room code from URLs or raw strings
   const extractRoomCode = (input: string) => {
     const trimmed = input.trim();
     if (trimmed.includes('/room/')) {
@@ -28,7 +42,18 @@ export default function App() {
     return trimmed;
   };
 
-  // 1. Guest Interval Polling for Waiting Room Approval
+  // 1. Parse Room Code on direct URL paste load (e.g. https://meet-studiof.onrender.com/room/abc-defg-hij)
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path.includes('/room/')) {
+      const codeFromUrl = path.split('/room/')[1]?.split('?')[0]?.trim();
+      if (codeFromUrl) {
+        setRoomInput(codeFromUrl);
+      }
+    }
+  }, []);
+
+  // 2. Guest Interval Polling for Waiting Room Approval
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
 
@@ -59,7 +84,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, [status, activeRoomName, participantName]);
 
-  // 2. Host Interval Polling for Pending Guests
+  // 3. Host Interval Polling for Pending Guests
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
 
@@ -89,6 +114,7 @@ export default function App() {
 
     const newRoomCode = Math.random().toString(36).substring(2, 11);
     setActiveRoomName(newRoomCode);
+    markRoomAsHosted(newRoomCode);
     setLoading(true);
 
     try {
@@ -102,6 +128,7 @@ export default function App() {
       if (data.token) {
         setToken(data.token);
         setIsHost(true);
+        window.history.pushState({}, '', `/room/${newRoomCode}`);
       }
     } catch (err) {
       console.error('Failed to create instant room:', err);
@@ -110,7 +137,7 @@ export default function App() {
     }
   };
 
-  // Action: Join existing room with code/link
+  // Action: Join room via link/code
   const handleJoinWithCode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!participantName.trim()) {
@@ -124,19 +151,42 @@ export default function App() {
     setActiveRoomName(roomCode);
     setLoading(true);
 
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/request-join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomName: roomCode, participantName }),
-      });
+    const userIsHost = isRoomHost(roomCode);
 
-      const data = await response.json();
-      if (data.status === 'pending') {
-        setStatus('pending');
+    try {
+      if (userIsHost) {
+        // Direct Join as Host
+        const response = await fetch(`${BACKEND_URL}/api/create-room`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomName: roomCode, hostName: participantName }),
+        });
+
+        const data = await response.json();
+        if (data.token) {
+          setToken(data.token);
+          setIsHost(true);
+          window.history.pushState({}, '', `/room/${roomCode}`);
+        }
+      } else {
+        // Request Join as Guest (Enter Waiting Room)
+        const response = await fetch(`${BACKEND_URL}/api/request-join`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomName: roomCode, participantName }),
+        });
+
+        const data = await response.json();
+        if (data.status === 'pending') {
+          setStatus('pending');
+        } else if (data.status === 'approved' && data.token) {
+          setToken(data.token);
+          setStatus('idle');
+        }
       }
     } catch (err) {
-      console.error('Failed to request join:', err);
+      console.error('Failed to join room:', err);
+    } finally {
       setLoading(false);
     }
   };
@@ -156,7 +206,7 @@ export default function App() {
     }
   };
 
-  // View 1: Google Meet Hero Landing Page
+  // View 1: Landing Page
   if (!token) {
     return (
       <MeetLanding
@@ -172,7 +222,7 @@ export default function App() {
     );
   }
 
-  // View 2: Live Video Call
+  // View 2: Live Call Canvas
   return (
     <div className="flex flex-col h-screen w-screen bg-[#090D16] overflow-hidden font-sans">
       <MeetingHeader
@@ -183,10 +233,10 @@ export default function App() {
           setToken(null);
           setIsHost(false);
           setStatus('idle');
+          window.history.pushState({}, '', '/');
         }}
       />
 
-      {/* Floating Host Approval Popup */}
       {isHost && (
         <HostApprovalBanner
           pendingGuests={pendingGuests}
@@ -206,6 +256,7 @@ export default function App() {
             setToken(null);
             setIsHost(false);
             setStatus('idle');
+            window.history.pushState({}, '', '/');
           }}
           style={{ height: '100%' }}
         >
