@@ -10,6 +10,8 @@ import { GreenRoomPreview } from './components/GreenRoomPreview';
 import { HostControlsDrawer } from './components/HostControlsDrawer';
 import { LeaveConfirmModal } from './components/LeaveConfirmModal';
 import { HostDataListener } from './components/HostDataListener';
+import { ToastContainer } from './components/Toast';
+import type { ToastMessage } from './components/Toast';
 
 const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL || 'wss://project-g-meet-3p15qlur.livekit.cloud';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
@@ -25,10 +27,20 @@ export default function App() {
   const [status, setStatus] = useState<'idle' | 'pending' | 'denied'>('idle');
   const [pendingGuests, setPendingGuests] = useState<any[]>([]);
 
-  // Mobile & Rejoin State
+  // Mobile, Rejoin, & Classy Toast State
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [rejoinRoom, setRejoinRoom] = useState<{ roomName: string; token: string } | null>(null);
   const [showHostDrawer, setShowHostDrawer] = useState(false);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const addToast = (message: string, type: ToastMessage['type'] = 'info') => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, type }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   // Helpers for host check
   const markRoomAsHosted = (code: string) => {
@@ -59,7 +71,7 @@ export default function App() {
     return { codeFromUrl: null, hostTokenFromUrl: null };
   };
 
-  // 1. Initial Page Load URL Detection (Supports Host Re-entry)
+  // 1. Initial Page Load URL Detection
   useEffect(() => {
     const { codeFromUrl, hostTokenFromUrl } = extractRoomDetailsFromUrl();
     if (codeFromUrl) {
@@ -71,12 +83,12 @@ export default function App() {
     }
   }, []);
 
-  // 2. Intercept Hardware Back Button / Swiping Back on Mobile Browsers
+  // 2. Intercept Hardware Back Button on Mobile
   useEffect(() => {
     if (token) {
       window.history.pushState({ inCall: true }, '', window.location.href);
 
-      const handlePopState = (_e: PopStateEvent) => {
+      const handlePopState = () => {
         if (token) {
           setShowLeaveModal(true);
           window.history.pushState({ inCall: true }, '', window.location.href);
@@ -88,12 +100,10 @@ export default function App() {
     }
   }, [token]);
 
-  // 3. Auto-dismiss Rejoin Toast after 15 Seconds
+  // 3. Auto-dismiss Rejoin Toast
   useEffect(() => {
     if (rejoinRoom) {
-      const timer = setTimeout(() => {
-        setRejoinRoom(null);
-      }, 15000);
+      const timer = setTimeout(() => setRejoinRoom(null), 15000);
       return () => clearTimeout(timer);
     }
   }, [rejoinRoom]);
@@ -117,9 +127,11 @@ export default function App() {
             setInGreenRoom(false);
             setStatus('idle');
             setLoading(false);
+            addToast('Admitted to the meeting room!', 'success');
           } else if (data.status === 'denied') {
             setStatus('denied');
             setLoading(false);
+            addToast('The host denied your join request.', 'error');
           }
         } catch (err) {
           console.error('Error checking approval status:', err);
@@ -151,10 +163,10 @@ export default function App() {
     return () => clearInterval(interval);
   }, [token, isHost, activeRoomName]);
 
-  // Action: Create Meeting Link for Later
+  // Action: Create Link for Later
   const handleCreateLinkForLater = async (): Promise<string | null> => {
     if (!participantName.trim()) {
-      alert('Please enter your display name first.');
+      addToast('Please enter your display name first.', 'warning');
       return null;
     }
 
@@ -177,18 +189,20 @@ export default function App() {
         }
         const hostLink = `${window.location.origin}/room/${newRoomCode}${data.hostToken ? `?token=${data.hostToken}` : ''}`;
         await navigator.clipboard.writeText(hostLink);
+        addToast('Meeting link copied to clipboard!', 'success');
         return hostLink;
       }
     } catch (err) {
       console.error('Failed to create room for later:', err);
+      addToast('Failed to generate meeting link.', 'error');
     }
     return null;
   };
 
-  // Action: Start Instant Meeting as Host
+  // Action: Start Instant Meeting
   const handleStartInstantMeeting = async () => {
     if (!participantName.trim()) {
-      alert('Please enter your display name first.');
+      addToast('Please enter your display name first.', 'warning');
       return;
     }
 
@@ -203,16 +217,19 @@ export default function App() {
     window.history.pushState({}, '', `/room/${newRoomCode}`);
   };
 
-  // Action: Join from Landing Page Form
+  // Action: Join from Landing Form
   const handleJoinWithCode = (e: React.FormEvent) => {
     e.preventDefault();
     if (!participantName.trim()) {
-      alert('Please enter your display name first.');
+      addToast('Please enter your display name first.', 'warning');
       return;
     }
 
     const roomCode = roomInput.trim().split('/room/').pop()?.split('?')[0];
-    if (!roomCode) return;
+    if (!roomCode) {
+      addToast('Invalid meeting link or room code.', 'warning');
+      return;
+    }
 
     setActiveRoomName(roomCode);
     setIsHost(isRoomHost(roomCode));
@@ -223,7 +240,7 @@ export default function App() {
   // Action: Execute Join from Green Room
   const handleGreenRoomJoin = async () => {
     if (!activeRoomName || !participantName.trim()) {
-      alert('Please enter your display name first.');
+      addToast('Please enter your display name first.', 'warning');
       return;
     }
 
@@ -245,6 +262,7 @@ export default function App() {
           setIsHost(true);
           setInGreenRoom(false);
           setLoading(false);
+          addToast('Connected as Host.', 'info');
           return;
         }
       }
@@ -258,19 +276,22 @@ export default function App() {
       const data = await response.json();
       if (data.status === 'pending') {
         setStatus('pending');
+        addToast('Request sent to host.', 'info');
       } else if (data.status === 'approved' && data.token) {
         setToken(data.token);
         setInGreenRoom(false);
         setStatus('idle');
+        addToast('Connected to room.', 'info');
       }
     } catch (err) {
       console.error('Failed to join room:', err);
+      addToast('Could not join room. Check backend connection.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  // Confirm Leave Execution
+  // Action: Confirm Leave
   const handleConfirmLeave = () => {
     if (activeRoomName && token) {
       setRejoinRoom({ roomName: activeRoomName, token });
@@ -281,9 +302,10 @@ export default function App() {
     setInGreenRoom(false);
     setStatus('idle');
     window.history.pushState({}, '', '/');
+    addToast('You have left the call.', 'info');
   };
 
-  // Host Actions: Approve or Deny Guest
+  // Action: Moderate Guest
   const handleModerateGuest = async (targetGuest: string, action: 'approve' | 'deny') => {
     try {
       await fetch(`${BACKEND_URL}/api/moderate-guest`, {
@@ -293,136 +315,135 @@ export default function App() {
       });
 
       setPendingGuests((prev) => prev.filter((p) => p.participantName !== targetGuest));
+      addToast(action === 'approve' ? `Admitted ${targetGuest}` : `Denied ${targetGuest}`, action === 'approve' ? 'success' : 'info');
     } catch (err) {
       console.error('Failed to moderate guest:', err);
     }
   };
 
-  // View 1: Landing Page (With Floating Rejoin Toast)
-  if (!inGreenRoom && !token) {
-    return (
-      <div className="relative min-h-[100dvh] w-full bg-[#090D16]">
-        <MeetLanding
-          roomInput={roomInput}
-          setRoomInput={setRoomInput}
+  return (
+    <div className="relative min-h-[100dvh] w-full bg-[#090D16] text-white font-sans overflow-x-hidden">
+      {/* Toast Notification Layer */}
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
+
+      {/* View 1: Landing Page */}
+      {!inGreenRoom && !token && (
+        <div className="relative min-h-[100dvh] w-full">
+          <MeetLanding
+            roomInput={roomInput}
+            setRoomInput={setRoomInput}
+            participantName={participantName}
+            setParticipantName={setParticipantName}
+            onStartInstantMeeting={handleStartInstantMeeting}
+            onCreateLinkForLater={handleCreateLinkForLater}
+            onJoinWithCode={handleJoinWithCode}
+            loading={loading}
+            status={status}
+          />
+
+          {rejoinRoom && (
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 border border-indigo-500/40 backdrop-blur-2xl p-3.5 sm:p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4 max-w-[calc(100vw-2rem)] sm:max-w-sm w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-bold text-white truncate">Left #{rejoinRoom.roomName}</p>
+                <p className="text-[11px] text-slate-400 truncate">Tap rejoin to re-enter call</p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setToken(rejoinRoom.token);
+                    setActiveRoomName(rejoinRoom.roomName);
+                    setRejoinRoom(null);
+                    addToast('Rejoined call.', 'success');
+                  }}
+                  className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-2 rounded-xl text-xs active:scale-95 transition-all shadow-md cursor-pointer min-h-[36px]"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> Rejoin
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setRejoinRoom(null)}
+                  className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* View 2: Green Room Preview Screen */}
+      {inGreenRoom && !token && (
+        <GreenRoomPreview
+          roomName={activeRoomName || ''}
           participantName={participantName}
           setParticipantName={setParticipantName}
-          onStartInstantMeeting={handleStartInstantMeeting}
-          onCreateLinkForLater={handleCreateLinkForLater}
-          onJoinWithCode={handleJoinWithCode}
+          isHost={isHost}
+          onJoin={handleGreenRoomJoin}
           loading={loading}
           status={status}
         />
-
-        {/* Floating Rejoin Banner Notification */}
-        {rejoinRoom && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 border border-indigo-500/40 backdrop-blur-2xl p-3.5 sm:p-4 rounded-2xl shadow-2xl shadow-indigo-950/50 flex items-center justify-between gap-4 max-w-[calc(100vw-2rem)] sm:max-w-sm w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div className="min-w-0 flex-1">
-              <p className="text-xs sm:text-sm font-bold text-white truncate">Left #{rejoinRoom.roomName}</p>
-              <p className="text-[11px] text-slate-400 truncate">Tap rejoin to re-enter call</p>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  setToken(rejoinRoom.token);
-                  setActiveRoomName(rejoinRoom.roomName);
-                  setRejoinRoom(null);
-                }}
-                className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-2 rounded-xl text-xs active:scale-95 transition-all shadow-md shadow-indigo-600/30 cursor-pointer min-h-[36px]"
-              >
-                <RotateCcw className="w-3.5 h-3.5" /> Rejoin
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setRejoinRoom(null)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // View 2: Green Room Preview Screen
-  if (inGreenRoom && !token) {
-    return (
-      <GreenRoomPreview
-        roomName={activeRoomName || ''}
-        participantName={participantName}
-        setParticipantName={setParticipantName}
-        isHost={isHost}
-        onJoin={handleGreenRoomJoin}
-        loading={loading}
-        status={status}
-      />
-    );
-  }
-
-  // View 3: Live Video Call Canvas (Dynamic 100dvh Viewport)
-  return (
-    <div className="flex flex-col h-[100dvh] w-screen bg-[#090D16] overflow-hidden font-sans relative select-none">
-      <MeetingHeader
-        roomName={activeRoomName || ''}
-        participantName={participantName}
-        isHost={isHost}
-        onLeave={() => setShowLeaveModal(true)}
-      />
-
-      {isHost && (
-        <HostApprovalBanner
-          pendingGuests={pendingGuests}
-          onApprove={(guest) => handleModerateGuest(guest, 'approve')}
-          onDeny={(guest) => handleModerateGuest(guest, 'deny')}
-        />
       )}
 
-      {/* Main LiveKit Call Canvas */}
-      <main className="flex-1 relative w-full h-[calc(100dvh-4rem)] overflow-hidden">
-        <LiveKitRoom
-          video={true}
-          audio={true}
-          token={token || undefined}
-          serverUrl={LIVEKIT_URL}
-          data-lk-theme="default"
-          onDisconnected={() => setShowLeaveModal(true)}
-          style={{ height: '100%', width: '100%' }}
-        >
-          {/* Real-time Data Command Listener for Host Moderation */}
-          <HostDataListener />
-          <VideoConference />
+      {/* View 3: Live Video Call Canvas */}
+      {token && (
+        <div className="flex flex-col h-[100dvh] w-screen bg-[#090D16] overflow-hidden relative select-none">
+          <MeetingHeader
+            roomName={activeRoomName || ''}
+            participantName={participantName}
+            isHost={isHost}
+            onLeave={() => setShowLeaveModal(true)}
+          />
 
-          {/* Floating Host Controls Trigger Button */}
           {isHost && (
-            <button
-              type="button"
-              onClick={() => setShowHostDrawer(true)}
-              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-xl shadow-xl flex items-center gap-1.5 text-xs active:scale-95 transition-all cursor-pointer min-h-[36px]"
-            >
-              <ShieldAlert className="w-4 h-4" /> 
-              <span className="hidden sm:inline">Host Tools</span>
-            </button>
+            <HostApprovalBanner
+              pendingGuests={pendingGuests}
+              onApprove={(guest) => handleModerateGuest(guest, 'approve')}
+              onDeny={(guest) => handleModerateGuest(guest, 'deny')}
+            />
           )}
 
-          {/* Slide-Up Host Controls Drawer */}
-          <HostControlsDrawer
-            isOpen={showHostDrawer}
-            onClose={() => setShowHostDrawer(false)}
-          />
-        </LiveKitRoom>
-      </main>
+          <main className="flex-1 relative w-full h-[calc(100dvh-4rem)] overflow-hidden">
+            <LiveKitRoom
+              video={true}
+              audio={true}
+              token={token || undefined}
+              serverUrl={LIVEKIT_URL}
+              data-lk-theme="default"
+              onDisconnected={() => setShowLeaveModal(true)}
+              style={{ height: '100%', width: '100%' }}
+            >
+              <HostDataListener onKicked={() => addToast('You were removed by the host.', 'error')} />
+              <VideoConference />
 
-      {/* Mobile Leave Confirmation Dialog */}
-      <LeaveConfirmModal
-        isOpen={showLeaveModal}
-        onCancel={() => setShowLeaveModal(false)}
-        onConfirm={handleConfirmLeave}
-      />
+              {isHost && (
+                <button
+                  type="button"
+                  onClick={() => setShowHostDrawer(true)}
+                  className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-xl shadow-xl flex items-center gap-1.5 text-xs active:scale-95 transition-all cursor-pointer min-h-[36px]"
+                >
+                  <ShieldAlert className="w-4 h-4" />
+                  <span className="hidden sm:inline">Host Tools</span>
+                </button>
+              )}
+
+              <HostControlsDrawer
+                isOpen={showHostDrawer}
+                onClose={() => setShowHostDrawer(false)}
+              />
+            </LiveKitRoom>
+          </main>
+
+          <LeaveConfirmModal
+            isOpen={showLeaveModal}
+            onCancel={() => setShowLeaveModal(false)}
+            onConfirm={handleConfirmLeave}
+          />
+        </div>
+      )}
     </div>
   );
 }

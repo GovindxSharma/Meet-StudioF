@@ -1,7 +1,11 @@
 import React, { useEffect } from 'react';
 import { useRoomContext, useLocalParticipant } from '@livekit/components-react';
 
-export const HostDataListener: React.FC = () => {
+interface HostDataListenerProps {
+  onKicked?: () => void;
+}
+
+export const HostDataListener: React.FC<HostDataListenerProps> = ({ onKicked }) => {
   const room = useRoomContext();
   const { localParticipant } = useLocalParticipant();
 
@@ -13,10 +17,10 @@ export const HostDataListener: React.FC = () => {
         const decoder = new TextDecoder();
         const data = JSON.parse(decoder.decode(payload));
 
-        // 1. Mute Audio/Video Command
+        // 1. Specific Target Mute
         if (data.action === 'mute') {
-          if (data.target === localParticipant.identity || data.action === 'mute_all') {
-            if (data.kind === 'audio' || data.action === 'mute_all') {
+          if (data.target === localParticipant.identity) {
+            if (data.kind === 'audio') {
               localParticipant.setMicrophoneEnabled(false);
             }
             if (data.kind === 'video') {
@@ -25,14 +29,14 @@ export const HostDataListener: React.FC = () => {
           }
         }
 
-        // 2. Global Mute Command
+        // 2. Global Mute
         if (data.action === 'mute_all' && localParticipant.isMicrophoneEnabled) {
           localParticipant.setMicrophoneEnabled(false);
         }
 
         // 3. Kick Command
         if (data.action === 'kick' && data.target === localParticipant.identity) {
-          alert('The host has removed you from this meeting.');
+          if (onKicked) onKicked();
           room.disconnect();
         }
       } catch (err) {
@@ -44,7 +48,7 @@ export const HostDataListener: React.FC = () => {
     return () => {
       room.off('dataReceived', handleDataReceived);
     };
-  }, [room, localParticipant]);
+  }, [room, localParticipant, onKicked]);
 
   return null;
 };
