@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { X, UserX, ShieldAlert, VolumeX, Users, Mic, MicOff, Video, VideoOff, Shield } from 'lucide-react';
 import { useParticipants, useLocalParticipant, useRoomContext } from '@livekit/components-react';
-import { Track } from 'livekit-client';
+
 
 interface HostControlsDrawerProps {
   isOpen: boolean;

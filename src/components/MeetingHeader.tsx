@@ -1,11 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Video, LogOut, Users, Crown, Copy, Check, Share2, PictureInPicture, X } from 'lucide-react';
+import {
+  Video,
+  LogOut,
+  Users,
+  Crown,
+  Copy,
+  Check,
+  Share2,
+  PictureInPicture,
+  X,
+  Mail,
+  MessageCircle,
+} from 'lucide-react';
 
 interface MeetingHeaderProps {
   roomName: string;
   participantName: string;
   isHost: boolean;
   onLeave: () => void;
+  onShowToast?: (msg: string, type?: 'info' | 'success' | 'warning' | 'error') => void;
 }
 
 export const MeetingHeader: React.FC<MeetingHeaderProps> = ({
@@ -13,6 +26,7 @@ export const MeetingHeader: React.FC<MeetingHeaderProps> = ({
   participantName,
   isHost,
   onLeave,
+  onShowToast,
 }) => {
   const [copied, setCopied] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -22,14 +36,14 @@ export const MeetingHeader: React.FC<MeetingHeaderProps> = ({
   const shareModalRef = useRef<HTMLDivElement>(null);
   const shareableUrl = `${window.location.origin}/room/${roomName}`;
 
-  // Check if Picture-in-Picture is supported by browser/device
+  // Check Picture-in-Picture support
   useEffect(() => {
     if ('pictureInPictureEnabled' in document && document.pictureInPictureEnabled) {
       setIsPipSupported(true);
     }
   }, []);
 
-  // Close share modal on outside click / mobile touch outside
+  // Close share modal on click / touch outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (shareModalRef.current && !shareModalRef.current.contains(event.target as Node)) {
@@ -48,14 +62,13 @@ export const MeetingHeader: React.FC<MeetingHeaderProps> = ({
     };
   }, [showShareModal]);
 
-  // Handle PiP Toggle for Video Tracks
+  // Handle PiP Toggle
   const handleTogglePip = async () => {
     try {
       if (document.pictureInPictureElement) {
         await document.exitPictureInPicture();
         setIsPipActive(false);
       } else {
-        // Find the active video element rendered by LiveKit
         const videoElement = document.querySelector('video') as HTMLVideoElement | null;
         if (videoElement && videoElement.readyState >= 2) {
           await videoElement.requestPictureInPicture();
@@ -67,7 +80,7 @@ export const MeetingHeader: React.FC<MeetingHeaderProps> = ({
             { once: true }
           );
         } else {
-          alert('No active video stream found to pop out into Picture-in-Picture.');
+          if (onShowToast) onShowToast('No active video stream found for PiP', 'warning');
         }
       }
     } catch (err) {
@@ -78,13 +91,42 @@ export const MeetingHeader: React.FC<MeetingHeaderProps> = ({
   const handleCopy = () => {
     navigator.clipboard.writeText(shareableUrl);
     setCopied(true);
+    if (onShowToast) onShowToast('Meeting link copied to clipboard!', 'success');
     setTimeout(() => setCopied(false), 3000);
   };
 
+  // Native Web Share API (Triggers native share sheet on mobile/Safari)
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Join Meet Studio Room: #${roomName}`,
+          text: `${participantName} is inviting you to a video meeting on Meet Studio.`,
+          url: shareableUrl,
+        });
+      } catch (err) {
+        console.log('User cancelled share or API error', err);
+      }
+    } else {
+      handleCopy();
+    }
+  };
+
+  // WhatsApp Share Link
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+    `Join my Meet Studio video call: ${shareableUrl}`
+  )}`;
+
+  // Email Mailto Link
+  const mailtoUrl = `mailto:?subject=${encodeURIComponent(
+    `Invitation to Meet Studio Video Call: #${roomName}`
+  )}&body=${encodeURIComponent(
+    `Hi,\n\n${participantName} is inviting you to a video meeting.\n\nClick the link to join: ${shareableUrl}\n\nSee you there!`
+  )}`;
+
   return (
     <header className="h-16 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/90 px-3 sm:px-6 flex items-center justify-between shrink-0 z-30 font-sans select-none">
-      
-      {/* Left Column: Branding & Room Badge */}
+      {/* Left Column */}
       <div className="flex items-center gap-2 sm:gap-4 min-w-0">
         <div className="flex items-center gap-2 shrink-0">
           <div className="p-2 bg-indigo-600/20 border border-indigo-500/30 rounded-xl shadow-inner">
@@ -104,16 +146,15 @@ export const MeetingHeader: React.FC<MeetingHeaderProps> = ({
 
         {isHost && (
           <span className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 px-2 py-1 rounded-lg text-xs font-semibold shrink-0">
-            <Crown className="w-3 h-3" /> 
+            <Crown className="w-3 h-3" />
             <span className="hidden sm:inline">Host</span>
           </span>
         )}
       </div>
 
-      {/* Right Column: PiP, Share Link, Participant Info & Leave Button */}
+      {/* Right Column */}
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-        
-        {/* Picture-in-Picture Button */}
+        {/* PiP Button */}
         {isPipSupported && (
           <button
             type="button"
@@ -130,7 +171,7 @@ export const MeetingHeader: React.FC<MeetingHeaderProps> = ({
           </button>
         )}
 
-        {/* Share Link Button & Popover */}
+        {/* Share Button & Expanded Popover */}
         <div className="relative" ref={shareModalRef}>
           <button
             type="button"
@@ -141,24 +182,25 @@ export const MeetingHeader: React.FC<MeetingHeaderProps> = ({
             <span className="hidden sm:inline">Invite</span>
           </button>
 
-          {/* Share Modal Popover */}
+          {/* Share Options Popover */}
           {showShareModal && (
-            <div className="absolute right-0 top-12 w-[calc(100vw-2rem)] sm:w-80 max-w-[320px] bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl shadow-indigo-950/50 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 top-12 w-[calc(100vw-2rem)] sm:w-80 max-w-[340px] bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl shadow-indigo-950/50 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="flex items-center justify-between mb-1">
-                <h4 className="text-xs sm:text-sm font-bold text-white">Your meeting's ready</h4>
+                <h4 className="text-xs sm:text-sm font-bold text-white">Share Meeting Link</h4>
                 <button
                   type="button"
                   onClick={() => setShowShareModal(false)}
-                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
-              <p className="text-[11px] sm:text-xs text-slate-400 mb-3 leading-snug">
-                Share this link with participants you want in the call
+              <p className="text-[11px] text-slate-400 mb-3 leading-snug">
+                Send an invite to participants via link, app, or email.
               </p>
 
-              <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 p-2 rounded-xl">
+              {/* Direct Link Copy Box */}
+              <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 p-2 rounded-xl mb-3">
                 <span className="text-xs text-slate-300 truncate flex-1 font-mono">{shareableUrl}</span>
                 <button
                   type="button"
@@ -168,7 +210,39 @@ export const MeetingHeader: React.FC<MeetingHeaderProps> = ({
                   {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
                 </button>
               </div>
-              {copied && <p className="text-[11px] text-emerald-400 mt-2 font-medium">✓ Link copied to clipboard!</p>}
+
+              {/* Multiple Sharing Options Grid */}
+              <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/80">
+                {/* 1. Native Mobile Share Sheet */}
+                <button
+                  type="button"
+                  onClick={handleNativeShare}
+                  className="flex flex-col items-center justify-center gap-1.5 p-2.5 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 rounded-xl text-slate-300 hover:text-white transition-all active:scale-95 cursor-pointer"
+                >
+                  <Share2 className="w-4 h-4 text-indigo-400" />
+                  <span className="text-[10px] font-medium">Share App</span>
+                </button>
+
+                {/* 2. WhatsApp Direct Share */}
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center justify-center gap-1.5 p-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-emerald-400 transition-all active:scale-95 cursor-pointer text-center"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-400" />
+                  <span className="text-[10px] font-medium">WhatsApp</span>
+                </a>
+
+                {/* 3. Email Invite */}
+                <a
+                  href={mailtoUrl}
+                  className="flex flex-col items-center justify-center gap-1.5 p-2.5 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 rounded-xl text-slate-300 hover:text-white transition-all active:scale-95 cursor-pointer text-center"
+                >
+                  <Mail className="w-4 h-4 text-violet-400" />
+                  <span className="text-[10px] font-medium">Email Invite</span>
+                </a>
+              </div>
             </div>
           )}
         </div>
