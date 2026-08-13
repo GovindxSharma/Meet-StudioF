@@ -5,6 +5,7 @@ import '@livekit/components-styles';
 import { MeetLanding } from './components/MeetLanding';
 import { MeetingHeader } from './components/MeetingHeader';
 import { HostApprovalBanner } from './components/HostApprovalBanner';
+import { GreenRoomPreview } from './components/GreenRoomPreview';
 
 const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL || 'wss://project-g-meet-3p15qlur.livekit.cloud';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
@@ -15,11 +16,12 @@ export default function App() {
   const [activeRoomName, setActiveRoomName] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
+  const [inGreenRoom, setInGreenRoom] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'pending' | 'denied'>('idle');
   const [pendingGuests, setPendingGuests] = useState<any[]>([]);
 
-  // Track hosted rooms in LocalStorage
+  // Helpers for host check
   const markRoomAsHosted = (code: string) => {
     const hostedRooms = JSON.parse(localStorage.getItem('hosted_rooms') || '[]');
     if (!hostedRooms.includes(code)) {
@@ -33,27 +35,34 @@ export default function App() {
     return hostedRooms.includes(code);
   };
 
-  // Helper to extract room code from URLs or raw strings
-  const extractRoomCode = (input: string) => {
-    const trimmed = input.trim();
-    if (trimmed.includes('/room/')) {
-      return trimmed.split('/room/')[1].split('?')[0];
-    }
-    return trimmed;
-  };
-
-  // 1. Parse Room Code on direct URL paste load (e.g. https://meet-studiof.onrender.com/room/abc-defg-hij)
-  useEffect(() => {
+  const extractRoomDetailsFromUrl = () => {
     const path = window.location.pathname;
+    const searchParams = new URLSearchParams(window.location.search);
+    let hostTokenFromUrl = searchParams.get('token');
+
     if (path.includes('/room/')) {
       const codeFromUrl = path.split('/room/')[1]?.split('?')[0]?.trim();
-      if (codeFromUrl) {
-        setRoomInput(codeFromUrl);
+      if (!hostTokenFromUrl && codeFromUrl) {
+        hostTokenFromUrl = localStorage.getItem(`host_token_${codeFromUrl}`);
+      }
+      return { codeFromUrl, hostTokenFromUrl };
+    }
+    return { codeFromUrl: null, hostTokenFromUrl: null };
+  };
+
+  // 1. Initial Page Load URL Detection
+  useEffect(() => {
+    const { codeFromUrl, hostTokenFromUrl } = extractRoomDetailsFromUrl();
+    if (codeFromUrl) {
+      setActiveRoomName(codeFromUrl);
+      setInGreenRoom(true);
+      if (hostTokenFromUrl || isRoomHost(codeFromUrl)) {
+        setIsHost(true);
       }
     }
   }, []);
 
-  // 2. Guest Interval Polling for Waiting Room Approval
+  // 2. Guest Approval Polling
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
 
@@ -69,6 +78,7 @@ export default function App() {
           const data = await res.json();
           if (data.status === 'approved' && data.token) {
             setToken(data.token);
+            setInGreenRoom(false);
             setStatus('idle');
             setLoading(false);
           } else if (data.status === 'denied') {
@@ -84,7 +94,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, [status, activeRoomName, participantName]);
 
-  // 3. Host Interval Polling for Pending Guests
+  // 3. Host Pending Guests Polling
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
 
@@ -105,17 +115,16 @@ export default function App() {
     return () => clearInterval(interval);
   }, [token, isHost, activeRoomName]);
 
-  // Action: Start Instant Meeting as Host
-  const handleStartInstantMeeting = async () => {
+  // Action: Create Meeting Link for Later
+  const handleCreateLinkForLater = async (): Promise<string | null> => {
     if (!participantName.trim()) {
       alert('Please enter your display name first.');
-      return;
+      return null;
     }
 
-    const newRoomCode = Math.random().toString(36).substring(2, 11);
-    setActiveRoomName(newRoomCode);
-    markRoomAsHosted(newRoomCode);
-    setLoading(true);
+    const rand = (len: number) =>
+      Array.from({ length: len }, () => 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]).join('');
+    const newRoomCode = `${rand(3)}-${rand(4)}-${rand(3)}`;
 
     try {
       const response = await fetch(`${BACKEND_URL}/api/create-room`, {
@@ -125,33 +134,66 @@ export default function App() {
       });
 
       const data = await response.json();
-      if (data.token) {
-        setToken(data.token);
-        setIsHost(true);
-        window.history.pushState({}, '', `/room/${newRoomCode}`);
+      if (data.token || data.hostToken) {
+        markRoomAsHosted(newRoomCode);
+        if (data.hostToken) {
+          localStorage.setItem(`host_token_${newRoomCode}`, data.hostToken);
+        }
+        const hostLink = `${window.location.origin}/room/${newRoomCode}${data.hostToken ? `?token=${data.hostToken}` : ''}`;
+        await navigator.clipboard.writeText(hostLink);
+        return hostLink;
       }
     } catch (err) {
-      console.error('Failed to create instant room:', err);
-    } finally {
-      setLoading(false);
+      console.error('Failed to create room for later:', err);
     }
+    return null;
   };
 
-  // Action: Join room via link/code
-  const handleJoinWithCode = async (e: React.FormEvent) => {
+  // Action: Start Instant Meeting as Host
+  const handleStartInstantMeeting = async () => {
+    if (!participantName.trim()) {
+      alert('Please enter your display name first.');
+      return;
+    }
+
+    const rand = (len: number) =>
+      Array.from({ length: len }, () => 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]).join('');
+    const newRoomCode = `${rand(3)}-${rand(4)}-${rand(3)}`;
+
+    setActiveRoomName(newRoomCode);
+    markRoomAsHosted(newRoomCode);
+    setIsHost(true);
+    setInGreenRoom(true);
+    window.history.pushState({}, '', `/room/${newRoomCode}`);
+  };
+
+  // Action: Join from Landing Page Form
+  const handleJoinWithCode = (e: React.FormEvent) => {
     e.preventDefault();
     if (!participantName.trim()) {
       alert('Please enter your display name first.');
       return;
     }
 
-    const roomCode = extractRoomCode(roomInput);
+    const roomCode = roomInput.trim().split('/room/').pop()?.split('?')[0];
     if (!roomCode) return;
 
     setActiveRoomName(roomCode);
-    setLoading(true);
+    setIsHost(isRoomHost(roomCode));
+    window.history.pushState({}, '', `/room/${roomCode}`);
+    setInGreenRoom(true);
+  };
 
-    const userIsHost = isRoomHost(roomCode);
+  // Action: Execute Join from Green Room
+  const handleGreenRoomJoin = async () => {
+    if (!activeRoomName || !participantName.trim()) {
+      alert('Please enter your display name first.');
+      return;
+    }
+
+    const { hostTokenFromUrl } = extractRoomDetailsFromUrl();
+    const userIsHost = isHost || isRoomHost(activeRoomName) || Boolean(hostTokenFromUrl);
+    setLoading(true);
 
     try {
       if (userIsHost) {
@@ -159,30 +201,33 @@ export default function App() {
         const response = await fetch(`${BACKEND_URL}/api/create-room`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomName: roomCode, hostName: participantName }),
+          body: JSON.stringify({ roomName: activeRoomName, hostName: participantName }),
         });
 
         const data = await response.json();
         if (data.token) {
           setToken(data.token);
           setIsHost(true);
-          window.history.pushState({}, '', `/room/${roomCode}`);
+          setInGreenRoom(false);
+          setLoading(false);
+          return;
         }
-      } else {
-        // Request Join as Guest (Enter Waiting Room)
-        const response = await fetch(`${BACKEND_URL}/api/request-join`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomName: roomCode, participantName }),
-        });
+      }
 
-        const data = await response.json();
-        if (data.status === 'pending') {
-          setStatus('pending');
-        } else if (data.status === 'approved' && data.token) {
-          setToken(data.token);
-          setStatus('idle');
-        }
+      // Guest Request Join
+      const response = await fetch(`${BACKEND_URL}/api/request-join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomName: activeRoomName, participantName }),
+      });
+
+      const data = await response.json();
+      if (data.status === 'pending') {
+        setStatus('pending');
+      } else if (data.status === 'approved' && data.token) {
+        setToken(data.token);
+        setInGreenRoom(false);
+        setStatus('idle');
       }
     } catch (err) {
       console.error('Failed to join room:', err);
@@ -191,7 +236,7 @@ export default function App() {
     }
   };
 
-  // Host Action: Approve or Deny Guest
+  // Moderate Guest Action
   const handleModerateGuest = async (targetGuest: string, action: 'approve' | 'deny') => {
     try {
       await fetch(`${BACKEND_URL}/api/moderate-guest`, {
@@ -207,7 +252,7 @@ export default function App() {
   };
 
   // View 1: Landing Page
-  if (!token) {
+  if (!inGreenRoom && !token) {
     return (
       <MeetLanding
         roomInput={roomInput}
@@ -215,6 +260,7 @@ export default function App() {
         participantName={participantName}
         setParticipantName={setParticipantName}
         onStartInstantMeeting={handleStartInstantMeeting}
+        onCreateLinkForLater={handleCreateLinkForLater}
         onJoinWithCode={handleJoinWithCode}
         loading={loading}
         status={status}
@@ -222,7 +268,22 @@ export default function App() {
     );
   }
 
-  // View 2: Live Call Canvas
+  // View 2: Green Room Preview Screen
+  if (inGreenRoom && !token) {
+    return (
+      <GreenRoomPreview
+        roomName={activeRoomName || ''}
+        participantName={participantName}
+        setParticipantName={setParticipantName}
+        isHost={isHost}
+        onJoin={handleGreenRoomJoin}
+        loading={loading}
+        status={status}
+      />
+    );
+  }
+
+  // View 3: Live Video Call Canvas
   return (
     <div className="flex flex-col h-screen w-screen bg-[#090D16] overflow-hidden font-sans">
       <MeetingHeader
@@ -232,6 +293,7 @@ export default function App() {
         onLeave={() => {
           setToken(null);
           setIsHost(false);
+          setInGreenRoom(false);
           setStatus('idle');
           window.history.pushState({}, '', '/');
         }}
@@ -255,6 +317,7 @@ export default function App() {
           onDisconnected={() => {
             setToken(null);
             setIsHost(false);
+            setInGreenRoom(false);
             setStatus('idle');
             window.history.pushState({}, '', '/');
           }}
