@@ -22,7 +22,6 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
   onCreateLinkForLater,
   onJoinWithCode,
   loading,
-  status,
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);

@@ -311,7 +311,7 @@ export default function App() {
         <LiveKitRoom
           video={true}
           audio={true}
-          token={token}
+          token={token || undefined}
           serverUrl={LIVEKIT_URL}
           data-lk-theme="default"
           onDisconnected={() => {
