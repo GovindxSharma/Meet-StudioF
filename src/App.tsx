@@ -9,6 +9,7 @@ import { HostApprovalBanner } from './components/HostApprovalBanner';
 import { GreenRoomPreview } from './components/GreenRoomPreview';
 import { HostControlsDrawer } from './components/HostControlsDrawer';
 import { LeaveConfirmModal } from './components/LeaveConfirmModal';
+import { HostDataListener } from './components/HostDataListener';
 
 const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL || 'wss://project-g-meet-3p15qlur.livekit.cloud';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
@@ -58,7 +59,7 @@ export default function App() {
     return { codeFromUrl: null, hostTokenFromUrl: null };
   };
 
-  // 1. Initial Page Load URL Detection
+  // 1. Initial Page Load URL Detection (Supports Host Re-entry)
   useEffect(() => {
     const { codeFromUrl, hostTokenFromUrl } = extractRoomDetailsFromUrl();
     if (codeFromUrl) {
@@ -73,12 +74,13 @@ export default function App() {
   // 2. Intercept Hardware Back Button / Swiping Back on Mobile Browsers
   useEffect(() => {
     if (token) {
-      window.history.pushState(null, '', window.location.href);
+      window.history.pushState({ inCall: true }, '', window.location.href);
 
-      const handlePopState = (e: PopStateEvent) => {
-        e.preventDefault();
-        setShowLeaveModal(true);
-        window.history.pushState(null, '', window.location.href);
+      const handlePopState = (_e: PopStateEvent) => {
+        if (token) {
+          setShowLeaveModal(true);
+          window.history.pushState({ inCall: true }, '', window.location.href);
+        }
       };
 
       window.addEventListener('popstate', handlePopState);
@@ -281,7 +283,7 @@ export default function App() {
     window.history.pushState({}, '', '/');
   };
 
-  // Host Actions
+  // Host Actions: Approve or Deny Guest
   const handleModerateGuest = async (targetGuest: string, action: 'approve' | 'deny') => {
     try {
       await fetch(`${BACKEND_URL}/api/moderate-guest`, {
@@ -294,14 +296,6 @@ export default function App() {
     } catch (err) {
       console.error('Failed to moderate guest:', err);
     }
-  };
-
-  const handleHostMuteAll = async () => {
-    alert('All participants muted.');
-  };
-
-  const handleHostRemoveParticipant = async (identity: string) => {
-    alert(`Participant ${identity} removed.`);
   };
 
   // View 1: Landing Page (With Floating Rejoin Toast)
@@ -344,7 +338,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setRejoinRoom(null)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-lg"
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -370,7 +364,7 @@ export default function App() {
     );
   }
 
-  // View 3: Live Video Call Canvas (Dynamic 100dvh viewport container)
+  // View 3: Live Video Call Canvas (Dynamic 100dvh Viewport)
   return (
     <div className="flex flex-col h-[100dvh] w-screen bg-[#090D16] overflow-hidden font-sans relative select-none">
       <MeetingHeader
@@ -388,7 +382,7 @@ export default function App() {
         />
       )}
 
-      {/* Main LiveKit Container */}
+      {/* Main LiveKit Call Canvas */}
       <main className="flex-1 relative w-full h-[calc(100dvh-4rem)] overflow-hidden">
         <LiveKitRoom
           video={true}
@@ -399,20 +393,28 @@ export default function App() {
           onDisconnected={() => setShowLeaveModal(true)}
           style={{ height: '100%', width: '100%' }}
         >
+          {/* Real-time Data Command Listener for Host Moderation */}
+          <HostDataListener />
           <VideoConference />
-        </LiveKitRoom>
 
-        {/* Floating Host Controls Trigger Button */}
-        {isHost && (
-          <button
-            type="button"
-            onClick={() => setShowHostDrawer(true)}
-            className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 sm:px-3.5 sm:py-2 rounded-xl shadow-xl flex items-center gap-1.5 text-xs active:scale-95 transition-all cursor-pointer min-h-[36px]"
-          >
-            <ShieldAlert className="w-4 h-4" /> 
-            <span className="hidden sm:inline">Host Tools</span>
-          </button>
-        )}
+          {/* Floating Host Controls Trigger Button */}
+          {isHost && (
+            <button
+              type="button"
+              onClick={() => setShowHostDrawer(true)}
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-xl shadow-xl flex items-center gap-1.5 text-xs active:scale-95 transition-all cursor-pointer min-h-[36px]"
+            >
+              <ShieldAlert className="w-4 h-4" /> 
+              <span className="hidden sm:inline">Host Tools</span>
+            </button>
+          )}
+
+          {/* Slide-Up Host Controls Drawer */}
+          <HostControlsDrawer
+            isOpen={showHostDrawer}
+            onClose={() => setShowHostDrawer(false)}
+          />
+        </LiveKitRoom>
       </main>
 
       {/* Mobile Leave Confirmation Dialog */}
@@ -420,15 +422,6 @@ export default function App() {
         isOpen={showLeaveModal}
         onCancel={() => setShowLeaveModal(false)}
         onConfirm={handleConfirmLeave}
-      />
-
-      {/* Slide-Up Host Controls Drawer */}
-      <HostControlsDrawer
-        isOpen={showHostDrawer}
-        onClose={() => setShowHostDrawer(false)}
-        participants={[]}
-        onMuteAll={handleHostMuteAll}
-        onRemoveParticipant={handleHostRemoveParticipant}
       />
     </div>
   );
