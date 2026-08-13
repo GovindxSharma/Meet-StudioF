@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Video, Plus, Link as LinkIcon, Copy, Check, Sparkles, ShieldCheck } from 'lucide-react';
+import { Video, Plus, Link as LinkIcon,  Check, Sparkles, ShieldCheck } from 'lucide-react';
 
 interface MeetLandingProps {
   roomInput: string;

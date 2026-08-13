@@ -30,7 +30,7 @@ export default function App() {
 
   // 1. Guest Interval Polling for Waiting Room Approval
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
 
     if (status === 'pending' && activeRoomName && participantName) {
       interval = setInterval(async () => {
@@ -61,7 +61,7 @@ export default function App() {
 
   // 2. Host Interval Polling for Pending Guests
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
 
     if (token && isHost && activeRoomName) {
       interval = setInterval(async () => {
