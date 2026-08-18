@@ -29,7 +29,7 @@ export const MeetingStage: React.FC<MeetingStageProps> = ({ handRaisedUsers }) =
   const activeSpotlightTrack = screenShareTrack || (pinnedIdentity ? trackReferences.find((t) => t.participant.identity === pinnedIdentity) : null);
 
   return (
-    <div className="relative w-full h-full p-2 sm:p-4 flex flex-col justify-center items-center overflow-hidden font-sans select-none bg-[#131314]">
+    <div className="relative w-full h-full p-2 sm:p-4 flex flex-col justify-center items-center overflow-hidden font-sans select-none bg-[#f8f9fa]">
       {/* Audio Conference Component handles audio rendering silently in background */}
       <AudioConference />
 
@@ -37,7 +37,7 @@ export const MeetingStage: React.FC<MeetingStageProps> = ({ handRaisedUsers }) =
       {activeSpotlightTrack ? (
         <div className="w-full h-full flex flex-col lg:flex-row gap-3 overflow-hidden">
           {/* Main Stage Video */}
-          <div className="flex-1 h-full min-h-0 bg-[#202124] border border-[#3c4043] rounded-3xl overflow-hidden relative shadow-2xl flex items-center justify-center">
+          <div className="flex-1 h-full min-h-0 bg-[#202124] border border-[#dadce0] rounded-3xl overflow-hidden relative shadow-lg flex items-center justify-center">
             {activeSpotlightTrack.publication?.isSubscribed || activeSpotlightTrack.participant.isLocal ? (
               <VideoTrack
                 trackRef={activeSpotlightTrack as any}
@@ -48,8 +48,8 @@ export const MeetingStage: React.FC<MeetingStageProps> = ({ handRaisedUsers }) =
             )}
 
             {/* Spotlight Badges */}
-            <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-[#202124]/90 backdrop-blur-md border border-[#3c4043] px-3 py-1.5 rounded-xl shadow-lg">
-              <span className="text-xs font-semibold text-white">
+            <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-white/90 backdrop-blur-md border border-[#dadce0] px-3 py-1.5 rounded-xl shadow-md text-[#202124]">
+              <span className="text-xs font-bold">
                 {activeSpotlightTrack.participant.name || activeSpotlightTrack.participant.identity}
                 {activeSpotlightTrack.source === Track.Source.ScreenShare ? ' (Presentation)' : ''}
               </span>
@@ -58,14 +58,14 @@ export const MeetingStage: React.FC<MeetingStageProps> = ({ handRaisedUsers }) =
             <button
               type="button"
               onClick={() => setPinnedIdentity(null)}
-              className="absolute top-4 right-4 bg-[#202124]/90 hover:bg-[#3c4043] text-white p-2 rounded-xl border border-[#3c4043] cursor-pointer transition-colors shadow-lg"
+              className="absolute top-4 right-4 bg-white/90 hover:bg-white text-[#202124] p-2 rounded-xl border border-[#dadce0] cursor-pointer transition-colors shadow-md"
               title="Unpin"
             >
               <PinOff className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Side / Bottom Filmstrip of other participants */}
+          {/* Side / Bottom Filmstrip */}
           <div className="w-full lg:w-64 h-32 lg:h-full flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto shrink-0 pb-1">
             {trackReferences
               .filter((t) => t !== activeSpotlightTrack)
@@ -117,13 +117,13 @@ export const MeetingStage: React.FC<MeetingStageProps> = ({ handRaisedUsers }) =
 
           {/* Fallback if no tracks ready yet */}
           {trackReferences.length === 0 && (
-            <div className="flex flex-col items-center justify-center p-8 bg-[#202124] border border-[#3c4043] rounded-3xl text-center space-y-3">
-              <div className="w-16 h-16 rounded-full bg-[#1a73e8] flex items-center justify-center text-white text-2xl font-bold">
+            <div className="flex flex-col items-center justify-center p-8 bg-white border border-[#dadce0] rounded-3xl text-center space-y-3 shadow-md">
+              <div className="w-16 h-16 rounded-full bg-[#1a73e8] flex items-center justify-center text-white text-2xl font-bold shadow-md">
                 {localParticipant.identity.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="text-base font-bold text-white">Connecting your camera & mic...</p>
-                <p className="text-xs text-slate-400 mt-0.5">Please wait a moment</p>
+                <p className="text-base font-bold text-[#202124]">Connecting your camera & mic...</p>
+                <p className="text-xs text-[#5f6368] mt-0.5">Please wait a moment</p>
               </div>
             </div>
           )}
@@ -148,10 +148,10 @@ const Tile: React.FC<{
 
   return (
     <div
-      className={`relative w-full h-full min-h-[160px] sm:min-h-[220px] bg-[#202124] border rounded-2xl sm:rounded-3xl overflow-hidden flex items-center justify-center group shadow-xl transition-all ${
+      className={`relative w-full h-full min-h-[160px] sm:min-h-[220px] bg-[#202124] border rounded-2xl sm:rounded-3xl overflow-hidden flex items-center justify-center group shadow-md transition-all ${
         isSpeaking
-          ? 'border-[#8ab4f8] ring-2 ring-[#8ab4f8]/50 shadow-[#8ab4f8]/10'
-          : 'border-[#3c4043]'
+          ? 'border-[#1a73e8] ring-4 ring-[#1a73e8]/30 shadow-[#1a73e8]/20'
+          : 'border-[#dadce0]'
       }`}
     >
       {/* Video Track Stream or Avatar Fallback */}
@@ -165,7 +165,7 @@ const Tile: React.FC<{
       )}
 
       {/* Overlay: Bottom Name Pill with Mic Status */}
-      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-[#202124]/85 backdrop-blur-md border border-[#3c4043]/80 px-2.5 py-1 rounded-xl shadow-md max-w-[85%]">
+      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-[#202124]/80 backdrop-blur-md px-3 py-1 rounded-xl shadow-md max-w-[85%]">
         <span className="text-xs font-semibold text-white truncate">
           {participantName} {isSelf ? '(You)' : ''}
         </span>
@@ -176,7 +176,7 @@ const Tile: React.FC<{
 
       {/* Overlay: Hand Raised Badge */}
       {isHandRaised && (
-        <div className="absolute top-3 left-3 bg-amber-400/90 text-[#202124] font-bold text-[11px] px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-lg animate-bounce">
+        <div className="absolute top-3 left-3 bg-[#fef7e0] border border-[#fce8b2] text-[#b06000] font-bold text-[11px] px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-md animate-bounce">
           <Hand className="w-3.5 h-3.5" />
           <span>Hand raised</span>
         </div>
@@ -187,7 +187,7 @@ const Tile: React.FC<{
         <button
           type="button"
           onClick={onTogglePin}
-          className="p-2 bg-[#202124]/90 hover:bg-[#3c4043] border border-[#3c4043] text-white rounded-xl shadow-md cursor-pointer transition-colors"
+          className="p-2 bg-white/90 hover:bg-white text-[#202124] rounded-xl shadow-md cursor-pointer transition-colors border border-[#dadce0]"
           title={isPinned ? 'Unpin' : 'Pin tile'}
         >
           {isPinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}
@@ -196,7 +196,7 @@ const Tile: React.FC<{
 
       {/* Speaking Active Glow Ripples */}
       {isSpeaking && (
-        <div className="absolute inset-0 pointer-events-none border-2 border-[#8ab4f8] rounded-2xl sm:rounded-3xl animate-pulse" />
+        <div className="absolute inset-0 pointer-events-none border-2 border-[#1a73e8] rounded-2xl sm:rounded-3xl" />
       )}
     </div>
   );
@@ -223,7 +223,7 @@ const AvatarPlaceholder: React.FC<{ participant: any }> = ({ participant }) => {
       >
         {initial}
       </div>
-      <span className="text-xs text-slate-400 font-medium">{name}</span>
+      <span className="text-xs text-slate-300 font-medium">{name}</span>
     </div>
   );
 };

@@ -48,7 +48,17 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
   const audioCtxRef = useRef<AudioContext | null>(null);
   const animFrameRef = useRef<number | null>(null);
 
-  // Initialize camera and microphone preview stream & live audio meter
+  // Auto-fill participant name from localStorage if empty
+  useEffect(() => {
+    if (!participantName.trim()) {
+      const savedName = localStorage.getItem('user_display_name');
+      if (savedName) {
+        setParticipantName(savedName);
+      }
+    }
+  }, [participantName, setParticipantName]);
+
+  // Initialize camera and microphone preview stream & audio meter
   useEffect(() => {
     let activeStream: MediaStream | null = null;
 
@@ -137,20 +147,20 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
   // Filter styles
   const filterStyles = {
     normal: '',
-    warm: 'sepia(25%) saturate(120%) brightness(105%)',
-    studio: 'contrast(115%) brightness(108%) saturate(110%)',
-    mono: 'grayscale(100%) contrast(120%)',
+    warm: 'sepia(20%) saturate(115%) brightness(105%)',
+    studio: 'contrast(110%) brightness(105%) saturate(110%)',
+    mono: 'grayscale(100%) contrast(115%)',
   };
 
   return (
-    <div className="min-h-[100dvh] w-full bg-[#131314] text-white flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans select-none relative overflow-x-hidden">
-      {/* Background Ambient Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#1a73e8]/10 rounded-full blur-[140px] pointer-events-none" />
+    <div className="min-h-[100dvh] w-full bg-[#ffffff] text-[#202124] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans select-none relative overflow-x-hidden">
+      {/* Subtle Background Accent */}
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-[#f8f9fa] to-transparent pointer-events-none" />
 
       <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-10 items-center z-10">
-        {/* LEFT COLUMN: Hardware Preview Box */}
+        {/* LEFT COLUMN: Clean Video Preview Box (No intrusive overlays) */}
         <div className="lg:col-span-7 flex flex-col items-center w-full space-y-3">
-          <div className="relative w-full aspect-video bg-[#202124] border border-[#3c4043] rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center">
+          <div className="relative w-full aspect-video bg-[#202124] border border-[#dadce0] rounded-3xl overflow-hidden shadow-xl flex items-center justify-center">
             {/* Live Media Feed or Camera Off */}
             {cameraOn ? (
               <video
@@ -164,45 +174,21 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
                 }`}
               />
             ) : (
-              <div className="flex flex-col items-center gap-3 text-slate-500 p-6 text-center">
-                <div className="w-16 h-16 rounded-full bg-[#303134] flex items-center justify-center text-slate-400">
+              <div className="flex flex-col items-center gap-3 text-slate-400 p-6 text-center">
+                <div className="w-16 h-16 rounded-full bg-[#303134] flex items-center justify-center text-slate-300">
                   <VideoOff className="w-8 h-8" />
                 </div>
-                <span className="text-xs font-semibold text-slate-400">Your camera is turned off</span>
+                <span className="text-xs font-semibold text-slate-300">Camera is turned off</span>
               </div>
             )}
 
-            {/* Top Left: Live Mic Audio Ripple Meter */}
-            <div className="absolute top-4 left-4 flex items-center gap-2 bg-[#202124]/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-[#3c4043] shadow-md">
-              <div className={`w-2 h-2 rounded-full ${micOn ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`} />
-              <span className="text-[11px] font-semibold text-slate-200">
-                {micOn ? 'Mic on' : 'Mic muted'}
-              </span>
-              {micOn && (
-                <div className="flex items-center gap-0.5 ml-1 h-3">
-                  <div
-                    className="w-1 bg-emerald-400 rounded-full transition-all duration-75"
-                    style={{ height: `${Math.max(3, (micLevel / 100) * 12)}px` }}
-                  />
-                  <div
-                    className="w-1 bg-emerald-400 rounded-full transition-all duration-75"
-                    style={{ height: `${Math.max(3, (micLevel / 100) * 16)}px` }}
-                  />
-                  <div
-                    className="w-1 bg-emerald-400 rounded-full transition-all duration-75"
-                    style={{ height: `${Math.max(3, (micLevel / 100) * 10)}px` }}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Top Right: Mirror & Effects Buttons */}
+            {/* Top Right: Mirror & Settings Icon Pills */}
             <div className="absolute top-4 right-4 flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setIsMirrored(!isMirrored)}
                 title="Mirror video"
-                className="p-2 bg-[#202124]/90 hover:bg-[#303134] text-slate-300 rounded-full border border-[#3c4043] transition-colors cursor-pointer"
+                className="p-2 bg-[#202124]/80 hover:bg-[#303134] text-white rounded-full border border-white/20 transition-colors cursor-pointer"
               >
                 <FlipHorizontal className="w-4 h-4" />
               </button>
@@ -210,26 +196,32 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
                 type="button"
                 onClick={() => setShowSettings(true)}
                 title="Audio and video settings"
-                className="p-2 bg-[#202124]/90 hover:bg-[#303134] text-slate-300 rounded-full border border-[#3c4043] transition-colors cursor-pointer"
+                className="p-2 bg-[#202124]/80 hover:bg-[#303134] text-white rounded-full border border-white/20 transition-colors cursor-pointer"
               >
                 <Settings className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Bottom Floating Pill Controls */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-[#202124]/90 backdrop-blur-xl px-4 py-2.5 rounded-full border border-[#3c4043] shadow-2xl">
-              <button
-                type="button"
-                onClick={toggleMic}
-                title={micOn ? 'Turn off microphone' : 'Turn on microphone'}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md ${
-                  micOn
-                    ? 'bg-[#3c4043] hover:bg-[#474a4e] text-white'
-                    : 'bg-[#ea4335] hover:bg-[#d93025] text-white'
-                }`}
-              >
-                {micOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
-              </button>
+            {/* Bottom Floating Pill Controls with integrated subtle speaking wave */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-[#202124]/85 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-2xl">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={toggleMic}
+                  title={micOn ? 'Turn off microphone' : 'Turn on microphone'}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md ${
+                    micOn
+                      ? 'bg-[#3c4043] hover:bg-[#474a4e] text-white'
+                      : 'bg-[#ea4335] hover:bg-[#d93025] text-white'
+                  }`}
+                >
+                  {micOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+                </button>
+                {/* Subtle speaking green dot on mic button */}
+                {micOn && micLevel > 15 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#202124] rounded-full animate-ping" />
+                )}
+              </div>
 
               <button
                 type="button"
@@ -246,18 +238,18 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
             </div>
           </div>
 
-          {/* Filter presets bar */}
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <span className="text-[11px] font-medium">Lighting:</span>
+          {/* Filter presets bar (Clean Light UI) */}
+          <div className="flex items-center gap-2 text-xs text-[#5f6368] pt-1">
+            <span className="text-xs font-semibold">Lighting:</span>
             {(['normal', 'warm', 'studio', 'mono'] as const).map((eff) => (
               <button
                 key={eff}
                 type="button"
                 onClick={() => setVisualEffect(eff)}
-                className={`px-2.5 py-1 rounded-lg capitalize text-[11px] transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded-full capitalize text-xs transition-colors cursor-pointer ${
                   visualEffect === eff
-                    ? 'bg-[#8ab4f8] text-[#202124] font-bold'
-                    : 'bg-[#202124] text-slate-300 hover:bg-[#303134]'
+                    ? 'bg-[#1a73e8] text-white font-semibold shadow-xs'
+                    : 'bg-[#f1f3f4] text-[#3c4043] hover:bg-[#e8eaed]'
                 }`}
               >
                 {eff}
@@ -266,65 +258,68 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Join Decisions & Name Entry Card */}
-        <div className="lg:col-span-5 w-full bg-[#202124] border border-[#3c4043] rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl text-left">
+        {/* RIGHT COLUMN: Join Card (Pure Light Theme) */}
+        <div className="lg:col-span-5 w-full bg-white border border-[#dadce0] rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl text-left">
           {/* Header Info */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#8ab4f8] flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Room #{roomName}
+              <span className="text-xs font-bold uppercase tracking-wider text-[#1a73e8] flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#f29900]" /> Room #{roomName}
               </span>
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
+                className="text-xs font-medium text-[#5f6368] hover:text-[#1a73e8] flex items-center gap-1 cursor-pointer"
               >
-                {copiedLink ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                {copiedLink ? <Check className="w-3 h-3 text-[#188038]" /> : <Copy className="w-3 h-3" />}
                 <span>{copiedLink ? 'Copied' : 'Copy link'}</span>
               </button>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#202124] tracking-tight">
               Ready to join?
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              No one else is in the call yet. Check your audio and video before entering.
+            <p className="text-xs sm:text-sm text-[#5f6368] mt-1">
+              Check your audio and video before entering Meet Studio.
             </p>
           </div>
 
           {/* Name Field Input */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-[#8ab4f8]" /> Your Display Name
+            <label className="text-xs font-bold text-[#5f6368] uppercase tracking-wider flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-[#1a73e8]" /> Your Display Name
             </label>
             <input
               type="text"
               placeholder="e.g. Sarah Jenkins"
               value={participantName}
-              onChange={(e) => setParticipantName(e.target.value)}
-              className="w-full bg-[#131314] border border-[#3c4043] focus:border-[#8ab4f8] focus:ring-2 focus:ring-[#8ab4f8]/20 rounded-2xl px-4 py-3.5 text-sm text-white placeholder-slate-500 outline-none transition-all"
+              onChange={(e) => {
+                setParticipantName(e.target.value);
+                localStorage.setItem('user_display_name', e.target.value);
+              }}
+              className="w-full bg-[#f8f9fa] border border-[#dadce0] focus:border-[#1a73e8] focus:bg-white focus:ring-2 focus:ring-[#1a73e8]/20 rounded-2xl px-4 py-3.5 text-sm text-[#202124] placeholder-[#80868b] outline-none transition-all shadow-xs"
             />
           </div>
 
           {/* Status Notifications */}
           {status === 'pending' && (
-            <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center gap-2.5 text-xs font-semibold text-amber-300 animate-pulse">
-              <Clock className="w-4 h-4 text-amber-400" /> Asking host to let you in...
+            <div className="p-3.5 bg-[#fef7e0] border border-[#fce8b2] rounded-2xl flex items-center justify-center gap-2.5 text-xs font-bold text-[#b06000] animate-pulse">
+              <Clock className="w-4 h-4 text-[#f29900]" /> Asking host to let you in...
             </div>
           )}
 
           {status === 'denied' && (
-            <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-center text-xs font-semibold text-rose-300">
+            <div className="p-3.5 bg-[#fce8e6] border border-[#fad2cf] rounded-2xl text-center text-xs font-bold text-[#c5221f]">
               ❌ The host denied your request to join this meeting.
             </div>
           )}
 
-          {/* Action Buttons: Join Now vs Present */}
+          {/* Action Buttons */}
           <div className="pt-2 space-y-3">
             <button
               type="button"
               onClick={onJoin}
               disabled={loading || status === 'pending' || !participantName.trim()}
-              className="w-full bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-bold py-3.5 sm:py-4 px-4 rounded-2xl shadow-lg shadow-[#1a73e8]/30 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm cursor-pointer"
+              className="w-full bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-bold py-3.5 sm:py-4 px-4 rounded-2xl shadow-md shadow-[#1a73e8]/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm cursor-pointer"
             >
               {isHost ? <Crown className="w-4 h-4 text-amber-300" /> : null}
               {loading
@@ -338,8 +333,8 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
           </div>
 
           {/* Footer Encryption Tag */}
-          <div className="pt-3 border-t border-[#3c4043] flex items-center justify-center gap-2 text-[11px] text-slate-500">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> End-to-end encrypted WebRTC stream
+          <div className="pt-3 border-t border-[#f1f3f4] flex items-center justify-center gap-2 text-xs text-[#5f6368]">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#188038]" /> End-to-end encrypted WebRTC stream
           </div>
         </div>
       </div>

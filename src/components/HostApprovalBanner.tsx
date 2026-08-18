@@ -31,12 +31,12 @@ export const HostApprovalBanner: React.FC<HostApprovalBannerProps> = ({
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2.5 w-[calc(100%-2rem)] max-w-md pointer-events-auto select-none font-sans">
       {/* Header Indicator for Multiple Knocking Guests */}
       {pendingGuests.length > 1 && (
-        <div className="flex items-center justify-between bg-[#202124]/95 border border-[#3c4043] backdrop-blur-md px-3 py-1.5 rounded-xl text-[11px] font-semibold text-amber-400 shadow-md">
+        <div className="flex items-center justify-between bg-white border border-[#dadce0] backdrop-blur-md px-3.5 py-1.5 rounded-xl text-[11px] font-bold text-[#b06000] shadow-md">
           <span className="flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5" />
+            <Users className="w-3.5 h-3.5 text-[#f29900]" />
             {pendingGuests.length} people want to join this call
           </span>
-          <span className="text-slate-400 font-normal">Waiting</span>
+          <span className="text-[#5f6368] font-normal">Waiting</span>
         </div>
       )}
 
@@ -44,18 +44,18 @@ export const HostApprovalBanner: React.FC<HostApprovalBannerProps> = ({
       {pendingGuests.map((guest) => (
         <div
           key={guest.participantName}
-          className="bg-[#202124]/95 border border-[#8ab4f8]/40 backdrop-blur-2xl rounded-2xl p-3.5 sm:p-4 shadow-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-300"
+          className="bg-white border border-[#dadce0] rounded-2xl p-3.5 sm:p-4 shadow-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-300"
         >
           {/* Guest Identity Info */}
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 shrink-0">
+            <div className="p-2.5 bg-[#fef7e0] border border-[#fce8b2] rounded-xl text-[#f29900] shrink-0">
               <Clock className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs sm:text-sm font-bold text-white truncate leading-snug">
+              <p className="text-xs sm:text-sm font-bold text-[#202124] truncate leading-snug">
                 {guest.participantName}
               </p>
-              <p className="text-[11px] text-slate-400 truncate mt-0.5">
+              <p className="text-[11px] text-[#5f6368] truncate mt-0.5">
                 Wants to join this call
               </p>
             </div>
@@ -67,7 +67,7 @@ export const HostApprovalBanner: React.FC<HostApprovalBannerProps> = ({
               type="button"
               onClick={() => onDeny(guest.participantName)}
               title="Deny entry"
-              className="flex items-center gap-1 bg-[#303134] hover:bg-rose-500/20 text-rose-400 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-1 bg-[#fce8e6] hover:bg-[#fad2cf] text-[#c5221f] border border-[#fad2cf] px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
             >
               <UserX className="w-3.5 h-3.5" />
               <span>Deny</span>
@@ -77,7 +77,7 @@ export const HostApprovalBanner: React.FC<HostApprovalBannerProps> = ({
               type="button"
               onClick={() => onApprove(guest.participantName)}
               title="Admit into room"
-              className="flex items-center gap-1 bg-[#1a73e8] hover:bg-[#1b66ca] text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-md shadow-[#1a73e8]/30 transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-1 bg-[#1a73e8] hover:bg-[#1b66ca] text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-md shadow-[#1a73e8]/20 transition-all active:scale-95 cursor-pointer"
             >
               <UserCheck className="w-3.5 h-3.5" />
               <span>Admit</span>

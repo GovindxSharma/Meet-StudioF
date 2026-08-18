@@ -118,123 +118,126 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
 
   const carouselItems = [
     {
-      title: 'Get a link that you can share',
+      title: 'Get a link you can share',
       desc: 'Click "New meeting" to get a link you can send to people you want to meet with.',
-      icon: <LinkIcon className="w-12 h-12 text-[#8ab4f8]" />,
-      accent: 'from-[#1a73e8]/20 to-[#8ab4f8]/10',
+      icon: <LinkIcon className="w-10 h-10 text-[#1a73e8]" />,
+      bg: 'bg-[#e8f0fe]',
     },
     {
       title: 'See everyone together',
       desc: 'To see more people at the same time, join or start a meeting with auto-adaptive tile grids.',
-      icon: <Users className="w-12 h-12 text-emerald-400" />,
-      accent: 'from-emerald-600/20 to-teal-500/10',
+      icon: <Users className="w-10 h-10 text-[#188038]" />,
+      bg: 'bg-[#e6f4ea]',
     },
     {
       title: 'Plan ahead with scheduled calls',
-      desc: 'Create secure meeting links ahead of time and invite teammates and friends.',
-      icon: <Calendar className="w-12 h-12 text-amber-400" />,
-      accent: 'from-amber-600/20 to-orange-500/10',
+      desc: 'Create secure meeting links ahead of time and invite teammates, clients, and friends.',
+      icon: <Calendar className="w-10 h-10 text-[#f29900]" />,
+      bg: 'bg-[#fef7e0]',
     },
     {
       title: 'Your meeting is safe and secure',
-      desc: 'No one can join a meeting unless invited or admitted by the meeting host.',
-      icon: <Shield className="w-12 h-12 text-violet-400" />,
-      accent: 'from-violet-600/20 to-purple-500/10',
+      desc: 'No one can join a meeting unless invited or admitted by the host.',
+      icon: <Shield className="w-10 h-10 text-[#a142f4]" />,
+      bg: 'bg-[#f3e8fd]',
     },
   ];
 
   return (
-    <div className="min-h-[100dvh] w-full bg-[#131314] text-white font-sans flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none relative overflow-x-hidden">
-      {/* Background Radial Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#1a73e8]/10 rounded-full blur-[140px] pointer-events-none" />
+    <div className="min-h-[100dvh] w-full bg-[#ffffff] text-[#202124] font-sans flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none relative overflow-x-hidden">
+      {/* Subtle Background Header Accent */}
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-[#f8f9fa] to-transparent pointer-events-none" />
 
-      {/* TOP BAR */}
-      <header className="max-w-7xl w-full mx-auto flex items-center justify-between py-2 z-10">
-        {/* Google Meet Branding */}
+      {/* TOP NAVIGATION BAR */}
+      <header className="max-w-7xl w-full mx-auto flex items-center justify-between py-2 sm:py-3 z-10 border-b border-[#f1f3f4] pb-4">
+        {/* Meet Studio Branding */}
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-to-tr from-[#1a73e8] to-[#8ab4f8] rounded-2xl shadow-lg shadow-[#1a73e8]/25 flex items-center justify-center">
-            <Video className="w-6 h-6 text-white" />
+          <div className="p-2.5 bg-[#1a73e8] rounded-2xl shadow-md shadow-[#1a73e8]/20 flex items-center justify-center text-white">
+            <Video className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
-              Google Meet <span className="text-xs font-normal text-[#8ab4f8] bg-[#8ab4f8]/10 px-2 py-0.5 rounded-full border border-[#8ab4f8]/20">Studio</span>
+            <span className="text-xl sm:text-2xl font-bold tracking-tight text-[#202124] flex items-center gap-1.5">
+              Meet Studio
             </span>
           </div>
         </div>
 
-        {/* Right Info & Actions */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="text-xs font-medium text-slate-300 hidden sm:flex items-center gap-2">
+        {/* Right Header Elements */}
+        <div className="flex items-center gap-3 sm:gap-5">
+          <div className="text-xs sm:text-sm font-medium text-[#5f6368] hidden md:flex items-center gap-2">
             <span>{currentTime}</span>
-            <span className="text-slate-600">•</span>
+            <span className="text-[#dadce0]">•</span>
             <span>{currentDate}</span>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={() => setShowSettings(true)}
               title="Settings"
-              className="p-2.5 text-slate-400 hover:text-white rounded-full hover:bg-[#202124] transition-colors cursor-pointer"
+              className="p-2.5 text-[#5f6368] hover:text-[#202124] rounded-full hover:bg-[#f1f3f4] transition-colors cursor-pointer"
             >
               <Settings className="w-5 h-5" />
             </button>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#1a73e8] to-[#8ab4f8] flex items-center justify-center text-white text-xs font-bold shadow-md">
+            <div className="w-9 h-9 rounded-full bg-[#e8f0fe] border border-[#d2e3fc] text-[#1967d2] flex items-center justify-center text-sm font-bold shadow-xs">
               {participantName ? participantName.charAt(0).toUpperCase() : 'U'}
             </div>
           </div>
         </div>
       </header>
 
-      {/* MAIN HERO */}
-      <main className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-14 items-center py-6 sm:py-10 z-10 my-auto">
-        {/* LEFT COLUMN: Controls & Input */}
+      {/* MAIN HERO SECTION */}
+      <main className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-14 items-center py-6 sm:py-12 z-10 my-auto">
+        {/* LEFT COLUMN: Main Controls & Inputs */}
         <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-left">
           <div className="space-y-3 sm:space-y-4">
-            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-white">
+            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-[#202124]">
               Premium video meetings. Now free for everyone.
             </h1>
-            <p className="text-sm sm:text-base text-slate-400 max-w-xl leading-relaxed">
-              We re-engineered the service that we built for secure business meetings, Google Meet, to make it free and available for all.
+            <p className="text-sm sm:text-lg text-[#5f6368] max-w-xl leading-relaxed">
+              We re-engineered Meet Studio to make high definition, secure, and encrypted video meetings accessible for all.
             </p>
           </div>
 
           <div className="space-y-5 max-w-xl">
             {/* Display Name Input */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[#5f6368]">
                 Your Display Name
               </label>
               <input
                 type="text"
                 placeholder="e.g. Sarah Jenkins"
                 value={participantName}
-                onChange={(e) => setParticipantName(e.target.value)}
-                className="w-full bg-[#202124] border border-[#3c4043] focus:border-[#8ab4f8] focus:ring-2 focus:ring-[#8ab4f8]/20 rounded-2xl px-4 py-3.5 text-sm text-white placeholder-slate-500 outline-none transition-all"
+                onChange={(e) => {
+                  setParticipantName(e.target.value);
+                  localStorage.setItem('user_display_name', e.target.value);
+                }}
+                className="w-full bg-[#f8f9fa] border border-[#dadce0] focus:border-[#1a73e8] focus:bg-white focus:ring-2 focus:ring-[#1a73e8]/20 rounded-2xl px-4 py-3.5 text-sm text-[#202124] placeholder-[#80868b] outline-none transition-all shadow-xs"
               />
             </div>
 
-            {/* Quick Actions Row */}
+            {/* Actions Row */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 relative">
               {/* New Meeting Dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-semibold px-6 py-3.5 rounded-2xl shadow-lg shadow-[#1a73e8]/30 active:scale-95 transition-all text-sm whitespace-nowrap cursor-pointer min-h-[48px]"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-semibold px-6 py-3.5 rounded-2xl shadow-md shadow-[#1a73e8]/20 active:scale-95 transition-all text-sm whitespace-nowrap cursor-pointer min-h-[48px]"
                 >
                   <Video className="w-4 h-4" />
                   <span>New meeting</span>
                 </button>
 
                 {showDropdown && (
-                  <div className="absolute left-0 top-14 w-72 bg-[#202124] border border-[#3c4043] rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-2xl space-y-1">
+                  <div className="absolute left-0 top-14 w-72 bg-[#ffffff] border border-[#dadce0] rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
                     <button
                       type="button"
                       onClick={handleCreateLinkForLater}
-                      className="w-full flex items-center gap-3 px-3.5 py-3 text-xs sm:text-sm font-medium text-slate-200 hover:text-white hover:bg-[#303134] rounded-xl transition-all text-left cursor-pointer"
+                      className="w-full flex items-center gap-3 px-3.5 py-3 text-xs sm:text-sm font-medium text-[#3c4043] hover:text-[#202124] hover:bg-[#f1f3f4] rounded-xl transition-all text-left cursor-pointer"
                     >
-                      <LinkIcon className="w-4 h-4 text-[#8ab4f8] shrink-0" />
+                      <LinkIcon className="w-4 h-4 text-[#1a73e8] shrink-0" />
                       <span>Create a meeting for later</span>
                     </button>
                     <button
@@ -243,9 +246,9 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
                         setShowDropdown(false);
                         onStartInstantMeeting();
                       }}
-                      className="w-full flex items-center gap-3 px-3.5 py-3 text-xs sm:text-sm font-medium text-slate-200 hover:text-white hover:bg-[#303134] rounded-xl transition-all text-left cursor-pointer"
+                      className="w-full flex items-center gap-3 px-3.5 py-3 text-xs sm:text-sm font-medium text-[#3c4043] hover:text-[#202124] hover:bg-[#f1f3f4] rounded-xl transition-all text-left cursor-pointer"
                     >
-                      <Plus className="w-4 h-4 text-[#8ab4f8] shrink-0" />
+                      <Plus className="w-4 h-4 text-[#1a73e8] shrink-0" />
                       <span>Start an instant meeting</span>
                     </button>
                   </div>
@@ -255,38 +258,38 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
               {/* Code / Link Join Form */}
               <form onSubmit={onJoinWithCode} className="flex-1 flex items-center gap-2 w-full">
                 <div className="relative flex-1">
-                  <Keyboard className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <Keyboard className="w-4 h-4 text-[#80868b] absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     placeholder="Enter a code or link"
                     value={roomInput}
                     onChange={(e) => setRoomInput(e.target.value)}
-                    className="w-full bg-[#202124] border border-[#3c4043] focus:border-[#8ab4f8] focus:ring-2 focus:ring-[#8ab4f8]/20 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder-slate-500 outline-none transition-all min-h-[48px]"
+                    className="w-full bg-[#f8f9fa] border border-[#dadce0] focus:border-[#1a73e8] focus:bg-white focus:ring-2 focus:ring-[#1a73e8]/20 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-[#202124] placeholder-[#80868b] outline-none transition-all min-h-[48px] shadow-xs"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={!roomInput.trim() || loading}
-                  className="bg-[#202124] hover:bg-[#303134] disabled:opacity-40 text-[#8ab4f8] font-bold px-6 py-3.5 rounded-2xl border border-[#3c4043] transition-all text-sm disabled:cursor-not-allowed cursor-pointer active:scale-95 min-h-[48px] shrink-0"
+                  className="bg-[#f1f3f4] hover:bg-[#e8eaed] disabled:opacity-40 text-[#1a73e8] font-bold px-6 py-3.5 rounded-2xl border border-[#dadce0] transition-all text-sm disabled:cursor-not-allowed cursor-pointer active:scale-95 min-h-[48px] shrink-0 shadow-xs"
                 >
                   Join
                 </button>
               </form>
             </div>
 
-            {/* Recent Meetings Shortcut List (if any) */}
+            {/* Recent Meetings History (if any) */}
             {recentMeetings.length > 0 && (
-              <div className="bg-[#202124]/60 border border-[#3c4043] rounded-2xl p-3.5 space-y-2">
+              <div className="bg-[#f8f9fa] border border-[#dadce0] rounded-2xl p-4 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-[#8ab4f8]" /> Recent Meetings
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#5f6368] flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-[#1a73e8]" /> Recent Meetings
                   </span>
                   <button
                     type="button"
                     onClick={handleClearHistory}
-                    className="text-[10px] text-slate-500 hover:text-rose-400 transition-colors flex items-center gap-1 cursor-pointer"
+                    className="text-xs text-[#5f6368] hover:text-[#d93025] transition-colors flex items-center gap-1 cursor-pointer"
                   >
-                    <Trash2 className="w-3 h-3" /> Clear
+                    <Trash2 className="w-3.5 h-3.5" /> Clear
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -295,10 +298,10 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
                       key={m.code}
                       type="button"
                       onClick={() => setRoomInput(m.code)}
-                      className="bg-[#303134] hover:bg-[#3c4043] text-slate-200 hover:text-white px-3 py-1.5 rounded-xl text-xs font-mono transition-colors cursor-pointer active:scale-95 flex items-center gap-1.5"
+                      className="bg-white hover:bg-[#e8f0fe] border border-[#dadce0] hover:border-[#1a73e8]/40 text-[#3c4043] hover:text-[#1967d2] px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer active:scale-95 flex items-center gap-1.5 shadow-xs"
                     >
                       <span>#{m.code}</span>
-                      <ArrowRight className="w-3 h-3 text-[#8ab4f8]" />
+                      <ArrowRight className="w-3 h-3 text-[#1a73e8]" />
                     </button>
                   ))}
                 </div>
@@ -309,32 +312,32 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
 
         {/* RIGHT COLUMN: Feature Carousel Card */}
         <div className="lg:col-span-5 flex justify-center w-full">
-          <div className="w-full max-w-md bg-[#202124] border border-[#3c4043] rounded-3xl p-6 sm:p-8 backdrop-blur-2xl text-center space-y-6 shadow-2xl relative overflow-hidden">
-            {/* Carousel Content */}
+          <div className="w-full max-w-md bg-white border border-[#dadce0] rounded-3xl p-6 sm:p-8 text-center space-y-6 shadow-xl relative overflow-hidden">
+            {/* Carousel Item */}
             <div className="space-y-6 transition-all duration-300">
               <div
-                className={`w-20 h-20 rounded-3xl bg-gradient-to-tr ${carouselItems[carouselIndex].accent} border border-[#3c4043] flex items-center justify-center mx-auto shadow-inner`}
+                className={`w-20 h-20 rounded-3xl ${carouselItems[carouselIndex].bg} flex items-center justify-center mx-auto shadow-inner`}
               >
                 {carouselItems[carouselIndex].icon}
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-bold text-white tracking-tight">
+                <h3 className="text-lg sm:text-xl font-bold text-[#202124] tracking-tight">
                   {carouselItems[carouselIndex].title}
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-xs mx-auto">
+                <p className="text-xs sm:text-sm text-[#5f6368] leading-relaxed max-w-xs mx-auto">
                   {carouselItems[carouselIndex].desc}
                 </p>
               </div>
             </div>
 
-            {/* Carousel Navigation Dots */}
-            <div className="flex items-center justify-center gap-2 pt-2">
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-center gap-2 pt-2 border-t border-[#f1f3f4]">
               <button
                 type="button"
                 onClick={() =>
                   setCarouselIndex((prev) => (prev === 0 ? carouselItems.length - 1 : prev - 1))
                 }
-                className="p-1 text-slate-500 hover:text-white transition-colors cursor-pointer"
+                className="p-1 text-[#5f6368] hover:text-[#202124] transition-colors cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -345,7 +348,7 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
                   type="button"
                   onClick={() => setCarouselIndex(idx)}
                   className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
-                    carouselIndex === idx ? 'w-6 bg-[#8ab4f8]' : 'bg-[#3c4043]'
+                    carouselIndex === idx ? 'w-6 bg-[#1a73e8]' : 'bg-[#dadce0]'
                   }`}
                 />
               ))}
@@ -353,7 +356,7 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
               <button
                 type="button"
                 onClick={() => setCarouselIndex((prev) => (prev + 1) % carouselItems.length)}
-                className="p-1 text-slate-500 hover:text-white transition-colors cursor-pointer"
+                className="p-1 text-[#5f6368] hover:text-[#202124] transition-colors cursor-pointer"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -362,32 +365,32 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
         </div>
       </main>
 
-      {/* CREATE FOR LATER POPUP MODAL */}
+      {/* CREATE MEETING LINK POPUP MODAL */}
       {showCreatedModal && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
           onClick={() => setShowCreatedModal(null)}
         >
           <div
-            className="bg-[#202124] border border-[#3c4043] rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl animate-in zoom-in-95 duration-150"
+            className="bg-white border border-[#dadce0] rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">Here's the link to your meeting</h3>
+              <h3 className="text-lg font-bold text-[#202124]">Here's your meeting link</h3>
               <button
                 type="button"
                 onClick={() => setShowCreatedModal(null)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-full hover:bg-[#303134] cursor-pointer"
+                className="p-1.5 text-[#5f6368] hover:text-[#202124] rounded-full hover:bg-[#f1f3f4] cursor-pointer"
               >
                 ✕
               </button>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Copy this link and send it to people that you want to meet with. Be sure to save it so that you can use it later too.
+            <p className="text-xs sm:text-sm text-[#5f6368] leading-relaxed">
+              Copy this link and send it to people that you want to meet with. Be sure to save it so you can use it later.
             </p>
 
-            <div className="flex items-center gap-2 bg-[#131314] border border-[#3c4043] p-2.5 rounded-2xl">
-              <span className="text-xs font-mono text-[#8ab4f8] truncate flex-1 select-all">
+            <div className="flex items-center gap-2 bg-[#f8f9fa] border border-[#dadce0] p-3 rounded-2xl">
+              <span className="text-xs font-mono text-[#1967d2] truncate flex-1 select-all font-semibold">
                 {showCreatedModal}
               </span>
               <button
@@ -396,7 +399,7 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
                   navigator.clipboard.writeText(showCreatedModal);
                   setCopiedLink(showCreatedModal);
                 }}
-                className="bg-[#1a73e8] hover:bg-[#1b66ca] text-white p-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95"
+                className="bg-[#1a73e8] hover:bg-[#1b66ca] text-white p-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95 shadow-xs"
               >
                 {copiedLink ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
               </button>
@@ -405,7 +408,7 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
             <button
               type="button"
               onClick={() => setShowCreatedModal(null)}
-              className="w-full bg-[#303134] hover:bg-[#3c4043] text-white py-3 rounded-2xl text-xs font-semibold transition-all cursor-pointer"
+              className="w-full bg-[#1a73e8] hover:bg-[#1b66ca] text-white py-3.5 rounded-2xl text-xs font-semibold transition-all cursor-pointer shadow-md shadow-[#1a73e8]/20"
             >
               Got it
             </button>
@@ -417,8 +420,8 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
 
       {/* FOOTER */}
-      <footer className="max-w-7xl w-full mx-auto text-center text-xs text-slate-600 py-3 border-t border-[#202124]">
-        Google Meet • High Definition Secure Video Conferencing
+      <footer className="max-w-7xl w-full mx-auto text-center text-xs text-[#5f6368] py-4 border-t border-[#f1f3f4]">
+        Meet Studio • Secure Encrypted Real-Time Video Conferencing
       </footer>
     </div>
   );

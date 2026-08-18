@@ -36,34 +36,34 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
   }, [toast.id, onDismiss]);
 
   const icons = {
-    info: <Info className="w-4 h-4 text-[#8ab4f8]" />,
-    success: <CheckCircle2 className="w-4 h-4 text-emerald-400" />,
-    warning: <AlertCircle className="w-4 h-4 text-amber-400" />,
-    error: <AlertCircle className="w-4 h-4 text-rose-400" />,
+    info: <Info className="w-4 h-4 text-[#1a73e8]" />,
+    success: <CheckCircle2 className="w-4 h-4 text-[#188038]" />,
+    warning: <AlertCircle className="w-4 h-4 text-[#f29900]" />,
+    error: <AlertCircle className="w-4 h-4 text-[#c5221f]" />,
   };
 
   const borders = {
-    info: 'border-[#8ab4f8]/40 bg-[#202124]/95 shadow-[#8ab4f8]/10',
-    success: 'border-emerald-500/40 bg-[#202124]/95 shadow-emerald-950/50',
-    warning: 'border-amber-500/40 bg-[#202124]/95 shadow-amber-950/50',
-    error: 'border-rose-500/40 bg-[#202124]/95 shadow-rose-950/50',
+    info: 'border-[#1a73e8]/30 bg-white text-[#202124] shadow-xl',
+    success: 'border-[#188038]/30 bg-white text-[#202124] shadow-xl',
+    warning: 'border-[#f29900]/30 bg-white text-[#202124] shadow-xl',
+    error: 'border-[#c5221f]/30 bg-white text-[#202124] shadow-xl',
   };
 
   return (
     <div
-      className={`pointer-events-auto border backdrop-blur-2xl px-4 py-3 rounded-2xl shadow-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-3 sm:slide-in-from-top-3 duration-200 ${
+      className={`pointer-events-auto border px-4 py-3 rounded-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-3 sm:slide-in-from-top-3 duration-200 ${
         borders[toast.type]
       }`}
     >
       <div className="flex items-center gap-2.5 min-w-0 flex-1">
         <div className="shrink-0">{icons[toast.type]}</div>
-        <p className="text-xs sm:text-sm font-semibold text-slate-100 truncate">{toast.message}</p>
+        <p className="text-xs sm:text-sm font-bold text-[#202124] truncate">{toast.message}</p>
       </div>
 
       <button
         type="button"
         onClick={() => onDismiss(toast.id)}
-        className="p-1 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer shrink-0"
+        className="p-1 text-[#5f6368] hover:text-[#202124] rounded-lg transition-colors cursor-pointer shrink-0"
       >
         <X className="w-3.5 h-3.5" />
       </button>

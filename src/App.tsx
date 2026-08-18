@@ -37,7 +37,7 @@ const RoomContextBinder: React.FC<{ onRoomReady: (room: any) => void }> = ({ onR
 
 export default function App() {
   const [roomInput, setRoomInput] = useState('');
-  const [participantName, setParticipantName] = useState('');
+  const [participantName, setParticipantName] = useState(() => localStorage.getItem('user_display_name') || '');
   const [activeRoomName, setActiveRoomName] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
@@ -218,6 +218,7 @@ export default function App() {
       addToast('Please enter your display name first.', 'warning');
       return null;
     }
+    localStorage.setItem('user_display_name', participantName);
 
     const rand = (len: number) =>
       Array.from({ length: len }, () => 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]).join('');
@@ -254,6 +255,7 @@ export default function App() {
       addToast('Please enter your display name first.', 'warning');
       return;
     }
+    localStorage.setItem('user_display_name', participantName);
 
     const rand = (len: number) =>
       Array.from({ length: len }, () => 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]).join('');
@@ -273,6 +275,7 @@ export default function App() {
       addToast('Please enter your display name first.', 'warning');
       return;
     }
+    localStorage.setItem('user_display_name', participantName);
 
     const roomCode = roomInput.trim().split('/room/').pop()?.split('?')[0];
     if (!roomCode) {
@@ -293,6 +296,7 @@ export default function App() {
       addToast('Please enter your display name first.', 'warning');
       return;
     }
+    localStorage.setItem('user_display_name', participantName);
 
     const { hostTokenFromUrl } = extractRoomDetailsFromUrl();
     const userIsHost = isHost || isRoomHost(activeRoomName) || Boolean(hostTokenFromUrl);
@@ -366,7 +370,6 @@ export default function App() {
   const handleEndCallForEveryone = async () => {
     if (!activeRoomName) return;
     try {
-      // Broadcast end_room to all connected clients
       if (roomInstanceRef.current) {
         const payload = JSON.stringify({ action: 'end_room' });
         await roomInstanceRef.current.localParticipant.publishData(new TextEncoder().encode(payload), { reliable: true });
@@ -411,7 +414,6 @@ export default function App() {
 
     setMessages((prev) => [...prev, newMsg]);
 
-    // Broadcast over LiveKit DataChannel
     if (roomInstanceRef.current) {
       try {
         const payload = JSON.stringify({
@@ -434,12 +436,11 @@ export default function App() {
       id: Math.random().toString(36).substring(2, 9),
       emoji,
       sender: participantName,
-      xPos: Math.floor(Math.random() * 60) + 20, // 20% to 80%
+      xPos: Math.floor(Math.random() * 60) + 20,
       createdAt: Date.now(),
     };
     setReactions((prev) => [...prev, newReaction]);
 
-    // Broadcast over LiveKit DataChannel
     if (roomInstanceRef.current) {
       try {
         const payload = JSON.stringify({
@@ -467,7 +468,6 @@ export default function App() {
       setHandRaisedUsers((prev) => prev.filter((u) => u !== participantName));
     }
 
-    // Broadcast over LiveKit DataChannel
     if (roomInstanceRef.current) {
       try {
         const payload = JSON.stringify({
@@ -483,13 +483,13 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-[100dvh] w-full bg-[#131314] text-white font-sans overflow-x-hidden">
+    <div className="relative min-h-[100dvh] w-full bg-white text-[#202124] font-sans overflow-x-hidden">
       {/* Toast Notification Container */}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
 
-      {/* VIEW 1: GOOGLE MEET LANDING PAGE */}
+      {/* VIEW 1: MEET STUDIO LANDING PAGE */}
       {!inGreenRoom && !token && (
-        <div className="relative min-h-[100dvh] w-full">
+        <div className="relative min-h-[100dvh] w-full bg-white">
           <MeetLanding
             roomInput={roomInput}
             setRoomInput={setRoomInput}
@@ -502,12 +502,12 @@ export default function App() {
             status={status}
           />
 
-          {/* Rejoin Call Pill */}
+          {/* Rejoin Call Pill (Clean Light Theme) */}
           {rejoinRoom && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#202124]/95 border border-[#8ab4f8]/40 backdrop-blur-2xl p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4 max-w-sm w-[calc(100vw-2rem)] animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#dadce0] p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4 max-w-sm w-[calc(100vw-2rem)] animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-bold text-white truncate">Left #{rejoinRoom.roomName}</p>
-                <p className="text-[11px] text-slate-400">Click rejoin to re-enter meeting</p>
+                <p className="text-xs sm:text-sm font-bold text-[#202124] truncate">Left #{rejoinRoom.roomName}</p>
+                <p className="text-[11px] text-[#5f6368]">Click rejoin to re-enter meeting</p>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
@@ -520,7 +520,7 @@ export default function App() {
                     soundManager.playJoin();
                     addToast('Rejoined meeting.', 'success');
                   }}
-                  className="flex items-center gap-1.5 bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-bold px-3.5 py-2 rounded-xl text-xs active:scale-95 transition-all shadow-md cursor-pointer"
+                  className="flex items-center gap-1.5 bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-bold px-3.5 py-2 rounded-xl text-xs active:scale-95 transition-all shadow-xs cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" /> Rejoin
                 </button>
@@ -528,7 +528,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setRejoinRoom(null)}
-                  className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer"
+                  className="p-1.5 text-[#5f6368] hover:text-[#202124] rounded-lg cursor-pointer hover:bg-[#f1f3f4]"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -538,7 +538,7 @@ export default function App() {
         </div>
       )}
 
-      {/* VIEW 2: GOOGLE MEET GREEN ROOM PRE-JOIN */}
+      {/* VIEW 2: GREEN ROOM PRE-JOIN */}
       {inGreenRoom && !token && (
         <GreenRoomPreview
           roomName={activeRoomName || ''}
@@ -551,9 +551,9 @@ export default function App() {
         />
       )}
 
-      {/* VIEW 3: LIVE GOOGLE MEET CALL CANVAS */}
+      {/* VIEW 3: LIVE MEET STUDIO CALL CANVAS */}
       {token && (
-        <div className="flex flex-col h-[100dvh] w-screen bg-[#131314] overflow-hidden relative select-none">
+        <div className="flex flex-col h-[100dvh] w-screen bg-[#f8f9fa] overflow-hidden relative select-none">
           <LiveKitRoom
             video={true}
             audio={true}
@@ -603,7 +603,7 @@ export default function App() {
             <CaptionsOverlay isEnabled={captionsEnabled} activeSpeakerName={participantName} />
 
             {/* Dynamic Responsive Video Stage */}
-            <main className="flex-1 relative w-full h-[calc(100dvh-5rem)] overflow-hidden flex">
+            <main className="flex-1 relative w-full h-[calc(100dvh-5rem)] overflow-hidden flex bg-[#f8f9fa]">
               <div className="flex-1 h-full overflow-hidden">
                 <MeetingStage handRaisedUsers={handRaisedUsers} />
               </div>
@@ -652,7 +652,7 @@ export default function App() {
               )}
             </main>
 
-            {/* Google Meet Bottom Control Bar */}
+            {/* Bottom Control Bar */}
             <MeetingControlBar
               roomName={activeRoomName || ''}
               isHost={isHost}

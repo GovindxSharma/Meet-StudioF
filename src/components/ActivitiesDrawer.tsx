@@ -26,7 +26,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
   // Whiteboard State
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [color, setColor] = useState('#8ab4f8');
+  const [color, setColor] = useState('#1a73e8');
   const [brushSize, setBrushSize] = useState(3);
   const [isEraser, setIsEraser] = useState(false);
 
@@ -34,7 +34,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
   const [polls, setPolls] = useState<Poll[]>([
     {
       id: '1',
-      question: 'How is the audio & video quality for everyone?',
+      question: 'How is the meeting audio and video quality for you?',
       options: [
         { text: 'Crystal clear (100%)', votes: 3 },
         { text: 'Good quality', votes: 1 },
@@ -53,7 +53,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
     if (!ctx) return;
 
     const { prevX, prevY, x, y, drawColor, drawSize, erase } = externalDrawEvent;
-    ctx.strokeStyle = erase ? '#131314' : drawColor;
+    ctx.strokeStyle = erase ? '#ffffff' : drawColor;
     ctx.lineWidth = drawSize;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -94,7 +94,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
     const x = clientX - rect.left;
     const y = clientY - rect.top;
 
-    ctx.strokeStyle = isEraser ? '#131314' : color;
+    ctx.strokeStyle = isEraser ? '#ffffff' : color;
     ctx.lineWidth = isEraser ? brushSize * 3 : brushSize;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -136,7 +136,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.fillStyle = '#131314';
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   };
 
@@ -144,7 +144,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
     const link = document.createElement('a');
-    link.download = 'meet-whiteboard.png';
+    link.download = 'meet-studio-whiteboard.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
   };
@@ -175,20 +175,20 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 z-40 w-full sm:w-96 bg-[#202124] border-l border-[#3c4043] shadow-2xl flex flex-col font-sans select-none animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-y-0 right-0 z-40 w-full sm:w-96 bg-white border-l border-[#dadce0] shadow-2xl flex flex-col font-sans select-none animate-in slide-in-from-right duration-200">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#3c4043]">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[#dadce0]">
         <div className="flex items-center gap-2">
           {activeActivity !== 'menu' && (
             <button
               type="button"
               onClick={() => setActiveActivity('menu')}
-              className="text-xs text-[#8ab4f8] hover:underline mr-1 cursor-pointer"
+              className="text-xs text-[#1a73e8] font-bold hover:underline mr-1 cursor-pointer"
             >
               ← Back
             </button>
           )}
-          <h3 className="text-base font-bold text-white tracking-tight">
+          <h3 className="text-base font-bold text-[#202124] tracking-tight">
             {activeActivity === 'menu'
               ? 'Activities'
               : activeActivity === 'whiteboard'
@@ -199,7 +199,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="p-1.5 text-slate-400 hover:text-white rounded-full hover:bg-[#303134] transition-all cursor-pointer"
+          className="p-1.5 text-[#5f6368] hover:text-[#202124] rounded-full hover:bg-[#f1f3f4] transition-all cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
@@ -207,19 +207,19 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
 
       {/* View 1: Main Activities Hub */}
       {activeActivity === 'menu' && (
-        <div className="p-4 space-y-3 flex-1 overflow-y-auto">
+        <div className="p-4 space-y-3 flex-1 overflow-y-auto bg-white">
           <button
             type="button"
             onClick={() => setActiveActivity('whiteboard')}
-            className="w-full flex items-start gap-4 p-4 bg-[#171717] hover:bg-[#2d2e30] border border-[#3c4043] rounded-2xl text-left transition-all cursor-pointer group"
+            className="w-full flex items-start gap-4 p-4 bg-[#f8f9fa] hover:bg-[#f1f3f4] border border-[#dadce0] rounded-2xl text-left transition-all cursor-pointer group shadow-2xs"
           >
-            <div className="p-3 bg-[#1a73e8]/20 border border-[#8ab4f8]/30 rounded-xl text-[#8ab4f8] group-hover:scale-105 transition-transform">
+            <div className="p-3 bg-[#e8f0fe] rounded-xl text-[#1a73e8] group-hover:scale-105 transition-transform shadow-xs">
               <PenTool className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">Whiteboarding (Jamboard)</h4>
-              <p className="text-xs text-slate-400 mt-1 leading-snug">
-                Sketch, brainstorm, and collaborate live with everyone in the meeting.
+              <h4 className="text-sm font-bold text-[#202124]">Whiteboarding (Jamboard)</h4>
+              <p className="text-xs text-[#5f6368] mt-1 leading-snug">
+                Sketch, brainstorm, and collaborate live with everyone in Meet Studio.
               </p>
             </div>
           </button>
@@ -227,14 +227,14 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
           <button
             type="button"
             onClick={() => setActiveActivity('polls')}
-            className="w-full flex items-start gap-4 p-4 bg-[#171717] hover:bg-[#2d2e30] border border-[#3c4043] rounded-2xl text-left transition-all cursor-pointer group"
+            className="w-full flex items-start gap-4 p-4 bg-[#f8f9fa] hover:bg-[#f1f3f4] border border-[#dadce0] rounded-2xl text-left transition-all cursor-pointer group shadow-2xs"
           >
-            <div className="p-3 bg-emerald-500/20 border border-emerald-400/30 rounded-xl text-emerald-400 group-hover:scale-105 transition-transform">
+            <div className="p-3 bg-[#e6f4ea] rounded-xl text-[#188038] group-hover:scale-105 transition-transform shadow-xs">
               <BarChart2 className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">Polls & Quick Q&A</h4>
-              <p className="text-xs text-slate-400 mt-1 leading-snug">
+              <h4 className="text-sm font-bold text-[#202124]">Polls & Quick Q&A</h4>
+              <p className="text-xs text-[#5f6368] mt-1 leading-snug">
                 Ask questions and collect live votes from your meeting participants.
               </p>
             </div>
@@ -244,15 +244,15 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
 
       {/* View 2: Collaborative Whiteboard */}
       {activeActivity === 'whiteboard' && (
-        <div className="flex-1 flex flex-col p-3 space-y-3 overflow-hidden">
+        <div className="flex-1 flex flex-col p-3 space-y-3 overflow-hidden bg-white">
           {/* Tools Bar */}
-          <div className="flex items-center justify-between bg-[#171717] p-2 rounded-xl border border-[#3c4043] flex-wrap gap-1">
+          <div className="flex items-center justify-between bg-[#f8f9fa] p-2 rounded-2xl border border-[#dadce0] flex-wrap gap-1">
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => setIsEraser(false)}
                 className={`p-2 rounded-lg transition-colors cursor-pointer ${
-                  !isEraser ? 'bg-[#1a73e8] text-white' : 'text-slate-400 hover:bg-[#303134]'
+                  !isEraser ? 'bg-[#1a73e8] text-white shadow-xs' : 'text-[#5f6368] hover:bg-[#e8eaed]'
                 }`}
                 title="Pen"
               >
@@ -263,7 +263,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
                 type="button"
                 onClick={() => setIsEraser(true)}
                 className={`p-2 rounded-lg transition-colors cursor-pointer ${
-                  isEraser ? 'bg-[#1a73e8] text-white' : 'text-slate-400 hover:bg-[#303134]'
+                  isEraser ? 'bg-[#1a73e8] text-white shadow-xs' : 'text-[#5f6368] hover:bg-[#e8eaed]'
                 }`}
                 title="Eraser"
               >
@@ -274,7 +274,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
               <select
                 value={brushSize}
                 onChange={(e) => setBrushSize(Number(e.target.value))}
-                className="bg-[#202124] text-xs text-slate-200 border border-[#3c4043] rounded-lg px-2 py-1 outline-none cursor-pointer"
+                className="bg-white text-xs text-[#202124] border border-[#dadce0] rounded-lg px-2 py-1 outline-none cursor-pointer shadow-2xs"
                 title="Stroke Width"
               >
                 <option value={2}>Thin</option>
@@ -284,7 +284,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
 
               {/* Color dots */}
               <div className="flex items-center gap-1 ml-1">
-                {['#8ab4f8', '#f28b82', '#81c995', '#fdd663', '#ffffff'].map((c) => (
+                {['#1a73e8', '#d93025', '#188038', '#f29900', '#202124'].map((c) => (
                   <button
                     key={c}
                     type="button"
@@ -294,7 +294,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
                     }}
                     style={{ backgroundColor: c }}
                     className={`w-5 h-5 rounded-full border transition-transform cursor-pointer ${
-                      color === c && !isEraser ? 'scale-125 border-white shadow-md' : 'border-transparent'
+                      color === c && !isEraser ? 'scale-125 border-[#202124] shadow-md' : 'border-transparent'
                     }`}
                   />
                 ))}
@@ -305,7 +305,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
               <button
                 type="button"
                 onClick={clearCanvas}
-                className="p-2 text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                className="p-2 text-[#d93025] hover:bg-[#fce8e6] rounded-lg transition-colors cursor-pointer"
                 title="Clear Board"
               >
                 <Trash2 className="w-4 h-4" />
@@ -313,7 +313,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
               <button
                 type="button"
                 onClick={downloadDrawing}
-                className="p-2 text-[#8ab4f8] hover:bg-[#8ab4f8]/10 rounded-lg transition-colors cursor-pointer"
+                className="p-2 text-[#1a73e8] hover:bg-[#e8f0fe] rounded-lg transition-colors cursor-pointer"
                 title="Download Drawing"
               >
                 <Download className="w-4 h-4" />
@@ -322,7 +322,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
           </div>
 
           {/* Canvas Box */}
-          <div className="flex-1 bg-[#131314] border border-[#3c4043] rounded-2xl overflow-hidden relative touch-none">
+          <div className="flex-1 bg-white border border-[#dadce0] rounded-2xl overflow-hidden relative touch-none shadow-inner">
             <canvas
               ref={canvasRef}
               width={350}
@@ -334,7 +334,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
               onTouchStart={startDrawing}
               onTouchMove={draw}
               onTouchEnd={stopDrawing}
-              className="w-full h-full cursor-crosshair"
+              className="w-full h-full cursor-crosshair bg-white"
             />
           </div>
         </div>
@@ -342,13 +342,13 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
 
       {/* View 3: Polls */}
       {activeActivity === 'polls' && (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
           {/* Create Poll Box */}
           <form
             onSubmit={handleCreatePoll}
-            className="p-3.5 bg-[#171717] border border-[#3c4043] rounded-2xl space-y-3"
+            className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl space-y-3 shadow-2xs"
           >
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#5f6368]">
               Create a new poll
             </h4>
             <input
@@ -356,7 +356,7 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
               placeholder="Ask a question..."
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
-              className="w-full bg-[#202124] border border-[#3c4043] focus:border-[#8ab4f8] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 outline-none"
+              className="w-full bg-white border border-[#dadce0] focus:border-[#1a73e8] rounded-xl px-3 py-2 text-xs text-[#202124] placeholder-[#80868b] outline-none shadow-2xs"
             />
             <div className="space-y-1.5">
               {newOptions.map((opt, idx) => (
@@ -370,14 +370,14 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
                     copy[idx] = e.target.value;
                     setNewOptions(copy);
                   }}
-                  className="w-full bg-[#202124] border border-[#3c4043] focus:border-[#8ab4f8] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 outline-none"
+                  className="w-full bg-white border border-[#dadce0] focus:border-[#1a73e8] rounded-xl px-3 py-2 text-xs text-[#202124] placeholder-[#80868b] outline-none shadow-2xs"
                 />
               ))}
             </div>
             <button
               type="submit"
               disabled={!newQuestion.trim() || newOptions.some((o) => !o.trim())}
-              className="w-full bg-[#1a73e8] hover:bg-[#1b66ca] disabled:opacity-40 text-white font-bold py-2 rounded-xl text-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+              className="w-full bg-[#1a73e8] hover:bg-[#1b66ca] disabled:opacity-40 text-white font-bold py-2.5 rounded-xl text-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" /> Launch Poll
             </button>
@@ -390,9 +390,9 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
               return (
                 <div
                   key={poll.id}
-                  className="bg-[#171717] border border-[#3c4043] p-4 rounded-2xl space-y-3"
+                  className="bg-[#f8f9fa] border border-[#dadce0] p-4 rounded-2xl space-y-3 shadow-2xs"
                 >
-                  <h4 className="text-xs sm:text-sm font-bold text-white">{poll.question}</h4>
+                  <h4 className="text-xs sm:text-sm font-bold text-[#202124]">{poll.question}</h4>
                   <div className="space-y-2">
                     {poll.options.map((opt, idx) => {
                       const percent = totalVotes > 0 ? Math.round((opt.votes / totalVotes) * 100) : 0;
@@ -406,26 +406,26 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
                           onClick={() => handleVote(poll.id, idx)}
                           className={`w-full relative overflow-hidden rounded-xl border p-2.5 text-left transition-all text-xs cursor-pointer flex items-center justify-between ${
                             hasVotedThis
-                              ? 'border-[#8ab4f8] bg-[#1a73e8]/20 text-white'
-                              : 'border-[#3c4043] bg-[#202124] text-slate-300 hover:bg-[#2d2e30]'
+                              ? 'border-[#1a73e8] bg-[#e8f0fe] text-[#1967d2] font-semibold'
+                              : 'border-[#dadce0] bg-white text-[#3c4043] hover:bg-[#f1f3f4]'
                           }`}
                         >
-                          {/* Percentage fill bar */}
+                          {/* Percentage progress bar */}
                           {totalVotes > 0 && (
                             <div
-                              className="absolute inset-y-0 left-0 bg-[#8ab4f8]/15 transition-all duration-300"
+                              className="absolute inset-y-0 left-0 bg-[#d2e3fc]/60 transition-all duration-300"
                               style={{ width: `${percent}%` }}
                             />
                           )}
                           <span className="relative z-10 font-medium truncate flex-1">{opt.text}</span>
-                          <span className="relative z-10 text-[11px] font-mono text-slate-400 shrink-0 ml-2">
+                          <span className="relative z-10 text-[11px] font-mono text-[#5f6368] shrink-0 ml-2">
                             {percent}% ({opt.votes})
                           </span>
                         </button>
                       );
                     })}
                   </div>
-                  <p className="text-[10px] text-slate-400 text-right">{totalVotes} votes</p>
+                  <p className="text-[10px] text-[#5f6368] text-right">{totalVotes} votes</p>
                 </div>
               );
             })}
