@@ -27,3 +27,24 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #bdc1c6;
 }
+
+/* Forcefully suppress and hide any audio level bars, meters, or voice visualizers */
+.lk-audio-bar,
+.lk-audio-bars,
+.lk-audio-visualizer,
+.lk-voice-visualizer,
+.lk-sound-meter,
+.lk-volume-indicator,
+.lk-audio-conference,
+.lk-participant-audio-meter,
+[data-lk-audio-indicator],
+[class*="audio-bar"],
+[class*="audio-meter"],
+[class*="voice-meter"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  pointer-events: none !important;
+}

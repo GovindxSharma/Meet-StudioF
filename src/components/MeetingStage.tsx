@@ -3,7 +3,7 @@ import {
   useTracks,
   useLocalParticipant,
   VideoTrack,
-  AudioConference,
+  RoomAudioRenderer,
 } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import { Mic, MicOff, Pin, PinOff, Hand } from 'lucide-react';
@@ -29,8 +29,8 @@ export const MeetingStage: React.FC<MeetingStageProps> = ({ handRaisedUsers }) =
 
   return (
     <div className="relative w-full h-full p-2 sm:p-4 flex flex-col justify-center items-center overflow-hidden font-sans select-none bg-[#f8f9fa]">
-      {/* Audio Conference Component handles audio rendering silently in background */}
-      <AudioConference />
+      {/* Invisible Room Audio Renderer (Zero UI audio bar) */}
+      <RoomAudioRenderer />
 
       {/* CASE A: SPOTLIGHT / PINNED / SCREEN SHARE MODE */}
       {activeSpotlightTrack ? (

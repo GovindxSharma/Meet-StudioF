@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Mic, Volume2, Video, Bell, Play, Check } from 'lucide-react';
+import { X, Mic, Volume2, Video, Bell, Play, Check, CheckCircle2 } from 'lucide-react';
 import { soundManager } from '../utils/soundUtils';
 
 interface SettingsModalProps {
@@ -26,6 +26,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   // Sound effects toggle
   const [soundsEnabled, setSoundsEnabled] = useState<boolean>(soundManager.isSoundEnabled());
   const [playingTestTone, setPlayingTestTone] = useState(false);
+  const [testedSuccess, setTestedSuccess] = useState(false);
+  const [micActiveState, setMicActiveState] = useState(false);
 
   // Enumerate devices on open
   useEffect(() => {
@@ -46,6 +48,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         if (mics.length > 0 && !selectedAudioInput) setSelectedAudioInput(mics[0].deviceId);
         if (speakers.length > 0 && !selectedAudioOutput) setSelectedAudioOutput(speakers[0].deviceId);
         if (cams.length > 0 && !selectedVideoInput) setSelectedVideoInput(cams[0].deviceId);
+
+        // Check if mic permission is granted
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((s) => {
+            setMicActiveState(true);
+            s.getTracks().forEach((t) => t.stop());
+          })
+          .catch(() => setMicActiveState(false));
       } catch (err) {
         console.error('Error enumerating devices:', err);
       }
@@ -91,10 +102,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null;
 
-  const handleTestSpeaker = () => {
+  const handleTestSpeaker = async () => {
     setPlayingTestTone(true);
-    soundManager.playTestTone();
-    setTimeout(() => setPlayingTestTone(false), 800);
+    setTestedSuccess(false);
+    await soundManager.playTestTone();
+    setTimeout(() => {
+      setPlayingTestTone(false);
+      setTestedSuccess(true);
+      setTimeout(() => setTestedSuccess(false), 3000);
+    }, 1000);
   };
 
   const handleToggleSound = (enabled: boolean) => {
@@ -113,7 +129,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#dadce0]">
-          <h2 className="text-lg font-bold text-[#202124] tracking-tight">Settings</h2>
+          <h2 className="text-lg font-bold text-[#202124] tracking-tight">Audio & Video Settings</h2>
           <button
             type="button"
             onClick={onClose}
@@ -156,20 +172,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 : 'border-transparent text-[#5f6368] hover:text-[#202124]'
             }`}
           >
-            <Bell className="w-4 h-4" /> General & Sounds
+            <Bell className="w-4 h-4" /> Sounds & Shortcuts
           </button>
         </div>
 
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1 text-[#202124] bg-white">
-          {/* TAB 1: AUDIO (Clean, No Audio Bars) */}
+          {/* TAB 1: AUDIO */}
           {activeTab === 'audio' && (
             <div className="space-y-5">
               {/* Microphone Section */}
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-[#5f6368] flex items-center gap-2">
-                  <Mic className="w-4 h-4 text-[#1a73e8]" /> Microphone Device
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#5f6368] flex items-center gap-2">
+                    <Mic className="w-4 h-4 text-[#1a73e8]" /> Microphone
+                  </label>
+                  {micActiveState && (
+                    <span className="text-[11px] font-semibold text-[#188038] bg-[#e6f4ea] px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Input Ready
+                    </span>
+                  )}
+                </div>
                 <select
                   value={selectedAudioInput}
                   onChange={(e) => setSelectedAudioInput(e.target.value)}
@@ -208,9 +231,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     className="bg-[#e8f0fe] hover:bg-[#d2e3fc] text-[#1967d2] border border-[#d2e3fc] px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shrink-0 shadow-2xs"
                   >
                     <Play className={`w-3.5 h-3.5 ${playingTestTone ? 'animate-spin' : ''}`} />
-                    <span>Test Sound</span>
+                    <span>{playingTestTone ? 'Playing...' : testedSuccess ? '✓ Tested' : 'Test Sound'}</span>
                   </button>
                 </div>
+                {testedSuccess && (
+                  <p className="text-xs text-[#188038] font-semibold mt-1">
+                    ✓ 4-tone speaker chime played successfully
+                  </p>
+                )}
               </div>
             </div>
           )}

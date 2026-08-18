@@ -12,18 +12,23 @@ class SoundManager {
     }
   }
 
-  private getContext(): AudioContext | null {
+  private async getContext(): Promise<AudioContext | null> {
     if (!this.enabled) return null;
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (AudioCtx) {
-        this.ctx = new AudioCtx();
+    try {
+      if (!this.ctx) {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (AudioCtx) {
+          this.ctx = new AudioCtx();
+        }
       }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        await this.ctx.resume();
+      }
+      return this.ctx;
+    } catch (e) {
+      console.warn('AudioContext error:', e);
+      return null;
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-    return this.ctx;
   }
 
   public setSoundEnabled(val: boolean) {
@@ -36,8 +41,8 @@ class SoundManager {
   }
 
   // Google Meet Join Sound (two soft harmonic ascending tones)
-  public playJoin() {
-    const ctx = this.getContext();
+  public async playJoin() {
+    const ctx = await this.getContext();
     if (!ctx) return;
 
     try {
@@ -71,8 +76,8 @@ class SoundManager {
   }
 
   // Google Meet Leave Sound (two soft descending tones)
-  public playLeave() {
-    const ctx = this.getContext();
+  public async playLeave() {
+    const ctx = await this.getContext();
     if (!ctx) return;
 
     try {
@@ -104,8 +109,8 @@ class SoundManager {
   }
 
   // Hand Raise Chime
-  public playHandRaise() {
-    const ctx = this.getContext();
+  public async playHandRaise() {
+    const ctx = await this.getContext();
     if (!ctx) return;
 
     try {
@@ -127,8 +132,8 @@ class SoundManager {
   }
 
   // Knocking / Join Request Sound
-  public playKnock() {
-    const ctx = this.getContext();
+  public async playKnock() {
+    const ctx = await this.getContext();
     if (!ctx) return;
 
     try {
@@ -151,8 +156,8 @@ class SoundManager {
   }
 
   // Chat Notification Pop
-  public playChatPop() {
-    const ctx = this.getContext();
+  public async playChatPop() {
+    const ctx = await this.getContext();
     if (!ctx) return;
 
     try {
@@ -173,9 +178,9 @@ class SoundManager {
     }
   }
 
-  // Test Speaker Sound
-  public playTestTone() {
-    const ctx = this.getContext();
+  // Test Speaker Sound (Pleasant, audible melodic 4-tone chime)
+  public async playTestTone() {
+    const ctx = await this.getContext();
     if (!ctx) return;
 
     try {
@@ -185,13 +190,13 @@ class SoundManager {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + idx * 0.12);
-        gain.gain.setValueAtTime(0.1, now + idx * 0.12);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.2);
+        osc.frequency.setValueAtTime(freq, now + idx * 0.14);
+        gain.gain.setValueAtTime(0.15, now + idx * 0.14);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.14 + 0.22);
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.start(now + idx * 0.12);
-        osc.stop(now + idx * 0.12 + 0.2);
+        osc.start(now + idx * 0.14);
+        osc.stop(now + idx * 0.14 + 0.22);
       });
     } catch (e) {
       console.warn('Could not play test tone:', e);

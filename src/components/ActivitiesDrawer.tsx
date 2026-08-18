@@ -5,6 +5,7 @@ import { useRoomContext } from '@livekit/components-react';
 interface ActivitiesDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  initialTab?: 'menu' | 'whiteboard' | 'polls';
   externalDrawEvent?: any;
 }
 
@@ -18,9 +19,10 @@ interface Poll {
 export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
   isOpen,
   onClose,
+  initialTab = 'menu',
   externalDrawEvent,
 }) => {
-  const [activeActivity, setActiveActivity] = useState<'menu' | 'whiteboard' | 'polls'>('menu');
+  const [activeActivity, setActiveActivity] = useState<'menu' | 'whiteboard' | 'polls'>(initialTab);
   const room = useRoomContext();
 
   // Whiteboard State
@@ -29,6 +31,13 @@ export const ActivitiesDrawer: React.FC<ActivitiesDrawerProps> = ({
   const [color, setColor] = useState('#1a73e8');
   const [brushSize, setBrushSize] = useState(3);
   const [isEraser, setIsEraser] = useState(false);
+
+  // Sync initialTab when drawer opens
+  useEffect(() => {
+    if (isOpen) {
+      setActiveActivity(initialTab);
+    }
+  }, [isOpen, initialTab]);
 
   // Polls State
   const [polls, setPolls] = useState<Poll[]>([

@@ -44,6 +44,8 @@ export default function App() {
   const [isHost, setIsHost] = useState(false);
   const [inGreenRoom, setInGreenRoom] = useState(false);
   const [showAboutPage, setShowAboutPage] = useState(() => window.location.pathname === '/about');
+  const [showInCallAboutModal, setShowInCallAboutModal] = useState(false);
+  const [activitiesInitialTab, setActivitiesInitialTab] = useState<'menu' | 'whiteboard' | 'polls'>('menu');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'pending' | 'denied'>('idle');
   const [pendingGuests, setPendingGuests] = useState<any[]>([]);
@@ -78,6 +80,18 @@ export default function App() {
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
+
+  // Prevent accidental navigation away during active call
+  useEffect(() => {
+    if (token) {
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        e.returnValue = '';
+      };
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
+  }, [token]);
 
   // Helper to save recent meetings
   const saveRecentMeeting = (code: string) => {
@@ -492,8 +506,8 @@ export default function App() {
       {/* Custom Toast Notification Container */}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
 
-      {/* VIEW 0: ABOUT / WALKTHROUGH & CREATOR PAGE */}
-      {showAboutPage && (
+      {/* VIEW 0: ABOUT / WALKTHROUGH & CREATOR PAGE (Full page outside call) */}
+      {!token && showAboutPage && (
         <AboutPage
           onBack={() => {
             setShowAboutPage(false);
@@ -505,7 +519,7 @@ export default function App() {
       )}
 
       {/* VIEW 1: MEET STUDIO LANDING PAGE */}
-      {!showAboutPage && !inGreenRoom && !token && (
+      {!token && !inGreenRoom && !showAboutPage && (
         <div className="relative min-h-[100dvh] w-full bg-white">
           <MeetLanding
             roomInput={roomInput}
@@ -560,7 +574,7 @@ export default function App() {
       )}
 
       {/* VIEW 2: GREEN ROOM PRE-JOIN */}
-      {!showAboutPage && inGreenRoom && !token && (
+      {!token && inGreenRoom && !showAboutPage && (
         <GreenRoomPreview
           roomName={activeRoomName || ''}
           participantName={participantName}
@@ -572,8 +586,8 @@ export default function App() {
         />
       )}
 
-      {/* VIEW 3: LIVE MEET STUDIO CALL CANVAS */}
-      {!showAboutPage && token && (
+      {/* VIEW 3: LIVE MEET STUDIO CALL CANVAS (ALWAYS KEPT ACTIVE & NEVER UNMOUNTED ON DIALOGS) */}
+      {token && (
         <div className="flex flex-col h-[100dvh] w-screen bg-[#f8f9fa] overflow-hidden relative select-none">
           <LiveKitRoom
             video={true}
@@ -624,7 +638,7 @@ export default function App() {
             <CaptionsOverlay isEnabled={captionsEnabled} activeSpeakerName={participantName} />
 
             {/* Dynamic Responsive Video Stage */}
-            <main className="flex-1 relative w-full h-[calc(100dvh-4.5rem)] sm:h-[calc(100dvh-5rem)] overflow-hidden flex bg-[#f8f9fa]">
+            <main className="flex-1 relative w-full h-[calc(100dvh-4rem)] sm:h-[calc(100dvh-5rem)] overflow-hidden flex bg-[#f8f9fa]">
               <div className="flex-1 h-full overflow-hidden">
                 <MeetingStage handRaisedUsers={handRaisedUsers} />
               </div>
@@ -660,6 +674,7 @@ export default function App() {
               <ActivitiesDrawer
                 isOpen={activeSidebar === 'activities'}
                 onClose={() => setActiveSidebar(null)}
+                initialTab={activitiesInitialTab}
                 externalDrawEvent={externalDrawData}
               />
 
@@ -690,11 +705,46 @@ export default function App() {
                 setActiveSidebar((prev) => (prev === tab ? null : tab))
               }
               onOpenSettings={() => setShowSettingsModal(true)}
-              onOpenWhiteboard={() => setActiveSidebar('activities')}
-              onOpenAbout={() => {
-                setShowAboutPage(true);
+              onOpenWhiteboard={() => {
+                setActivitiesInitialTab('whiteboard');
+                setActiveSidebar('activities');
               }}
+              onOpenAbout={() => setShowInCallAboutModal(true)}
             />
+
+            {/* In-Call Small Window Overlay: About & Story Modal */}
+            {showInCallAboutModal && (
+              <div
+                className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+                onClick={() => setShowInCallAboutModal(false)}
+              >
+                <div
+                  className="bg-white border border-[#dadce0] rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-5 shadow-2xl animate-in zoom-in-95 duration-150"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-[#f1f3f4]">
+                    <h3 className="text-lg font-bold text-[#202124]">About Meet Studio</h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowInCallAboutModal(false)}
+                      className="p-1 text-[#5f6368] hover:text-[#202124] rounded-full hover:bg-[#f1f3f4]"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="space-y-4 text-xs sm:text-sm text-[#5f6368] leading-relaxed">
+                    <p className="font-semibold text-[#202124]">
+                      Meet Studio was engineered to provide high-speed, zero-friction, encrypted video conferencing without artificial limits or paywalls.
+                    </p>
+                    <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl space-y-2">
+                      <p className="font-bold text-[#202124]">Creator: Govind Sharma</p>
+                      <p>GitHub: <a href="https://github.com/GovindxSharma" target="_blank" rel="noopener noreferrer" className="text-[#1a73e8] underline font-bold">@GovindxSharma</a></p>
+                      <p>Email: <a href="mailto:contact@meetstudio.dev" className="text-[#1a73e8] underline font-bold">contact@meetstudio.dev</a></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Modals */}
             <LeaveConfirmModal
