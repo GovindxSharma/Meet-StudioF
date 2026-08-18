@@ -12,13 +12,11 @@ import {
   Info,
   Users,
   MessageSquare,
-  Shapes,
   Shield,
   Maximize2,
   Minimize2,
   PictureInPicture,
   Settings,
-  PenTool,
   Subtitles,
   BookOpen,
   X,
@@ -37,10 +35,9 @@ interface MeetingControlBarProps {
   onToggleCaptions: () => void;
   participantCount: number;
   unreadMessagesCount: number;
-  activeSidebar: 'details' | 'people' | 'chat' | 'activities' | 'host' | null;
-  onToggleSidebar: (tab: 'details' | 'people' | 'chat' | 'activities' | 'host') => void;
+  activeSidebar: 'details' | 'people' | 'chat' | 'host' | null;
+  onToggleSidebar: (tab: 'details' | 'people' | 'chat' | 'host') => void;
   onOpenSettings: () => void;
-  onOpenWhiteboard: () => void;
   onOpenAbout?: () => void;
 }
 
@@ -58,7 +55,6 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
   activeSidebar,
   onToggleSidebar,
   onOpenSettings,
-  onOpenWhiteboard,
   onOpenAbout,
 }) => {
   const { localParticipant, isMicrophoneEnabled, isCameraEnabled, isScreenShareEnabled } =
@@ -156,9 +152,9 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
         </div>
 
         {/* ========================================================================= */}
-        {/* MOBILE CONTROL BAR: Only 5 Spacious, Clean, Non-Congested Buttons */}
+        {/* MOBILE CONTROL BAR: 5 Centered, Spacious, Clean Buttons */}
         {/* ========================================================================= */}
-        <div className="flex sm:hidden items-center justify-around w-full max-w-sm mx-auto">
+        <div className="flex sm:hidden items-center justify-around w-full max-w-xs mx-auto">
           {/* 1. Mic */}
           <button
             type="button"
@@ -198,7 +194,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
             <Hand className="w-5 h-5" />
           </button>
 
-          {/* 4. More Options Drawer Trigger (with notification dot if unread) */}
+          {/* 4. More Options Drawer Trigger */}
           <div className="relative">
             <button
               type="button"
@@ -345,18 +341,6 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
               <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-60 bg-white border border-[#dadce0] rounded-2xl p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowMoreMenu(false);
-                    onOpenWhiteboard();
-                  }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm text-[#3c4043] hover:bg-[#f1f3f4] hover:text-[#202124] transition-colors cursor-pointer text-left"
-                >
-                  <PenTool className="w-4 h-4 text-[#1a73e8]" />
-                  <span>Open Whiteboard</span>
-                </button>
-
-                <button
-                  type="button"
                   onClick={handleToggleFullscreen}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm text-[#3c4043] hover:bg-[#f1f3f4] hover:text-[#202124] transition-colors cursor-pointer text-left"
                 >
@@ -414,7 +398,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
         </div>
 
         {/* ========================================================================= */}
-        {/* DESKTOP RIGHT: Sidebar Toggles */}
+        {/* DESKTOP RIGHT: Sidebar Toggles (Chat, People, Details, Host) */}
         {/* ========================================================================= */}
         <div className="hidden sm:flex items-center gap-1 sm:gap-1.5">
           {/* Info */}
@@ -469,20 +453,6 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
             )}
           </button>
 
-          {/* Activities */}
-          <button
-            type="button"
-            onClick={() => onToggleSidebar('activities')}
-            title="Activities"
-            className={`p-2.5 rounded-full transition-colors cursor-pointer ${
-              activeSidebar === 'activities'
-                ? 'text-[#1a73e8] bg-[#e8f0fe]'
-                : 'text-[#5f6368] hover:text-[#202124] hover:bg-[#f1f3f4]'
-            }`}
-          >
-            <Shapes className="w-5 h-5" />
-          </button>
-
           {/* Host Controls */}
           {isHost && (
             <button
@@ -502,7 +472,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
       </footer>
 
       {/* ========================================================================= */}
-      {/* NATIVE GOOGLE MEET MOBILE BOTTOM SHEET DRAWER */}
+      {/* MOBILE BOTTOM SHEET DRAWER */}
       {/* ========================================================================= */}
       {showMobileDrawer && (
         <div
@@ -510,7 +480,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
           onClick={() => setShowMobileDrawer(false)}
         >
           <div
-            className="bg-white rounded-t-3xl border-t border-[#dadce0] p-4 space-y-4 max-h-[80vh] overflow-y-auto animate-in slide-in-from-bottom duration-250 shadow-2xl"
+            className="bg-white rounded-t-3xl border-t border-[#dadce0] p-5 space-y-4 max-h-[80vh] overflow-y-auto animate-in slide-in-from-bottom duration-250 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Drawer Drag Bar Header */}
@@ -548,7 +518,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
             </div>
 
             {/* Grid of Action Items */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               {/* In-Call Chat */}
               <button
                 type="button"
@@ -578,32 +548,6 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
               >
                 <Users className="w-5 h-5 text-[#188038]" />
                 <span className="text-xs font-semibold text-[#202124]">People ({participantCount})</span>
-              </button>
-
-              {/* Whiteboard */}
-              <button
-                type="button"
-                onClick={() => {
-                  setShowMobileDrawer(false);
-                  onOpenWhiteboard();
-                }}
-                className="flex items-center gap-3 p-3 bg-[#f8f9fa] hover:bg-[#e8f0fe] border border-[#dadce0] rounded-2xl text-left transition-colors"
-              >
-                <PenTool className="w-5 h-5 text-[#f29900]" />
-                <span className="text-xs font-semibold text-[#202124]">Whiteboard</span>
-              </button>
-
-              {/* Activities / Polls */}
-              <button
-                type="button"
-                onClick={() => {
-                  setShowMobileDrawer(false);
-                  onToggleSidebar('activities');
-                }}
-                className="flex items-center gap-3 p-3 bg-[#f8f9fa] hover:bg-[#e8f0fe] border border-[#dadce0] rounded-2xl text-left transition-colors"
-              >
-                <Shapes className="w-5 h-5 text-[#a142f4]" />
-                <span className="text-xs font-semibold text-[#202124]">Activities & Polls</span>
               </button>
 
               {/* Captions Toggle */}

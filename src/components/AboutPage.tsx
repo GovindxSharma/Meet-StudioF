@@ -25,50 +25,52 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
   return (
     <div className="min-h-[100dvh] w-full bg-[#ffffff] text-[#202124] font-sans selection:bg-[#1a73e8] selection:text-white flex flex-col justify-between select-none relative overflow-x-hidden">
       {/* Background Subtle Gradient */}
-      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-[#f8f9fa] via-[#e8f0fe]/40 to-transparent pointer-events-none" />
+      <div className="absolute top-0 inset-x-0 h-80 bg-gradient-to-b from-[#f8f9fa] via-[#e8f0fe]/30 to-transparent pointer-events-none" />
 
       {/* TOP HEADER */}
-      <header className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-4 flex items-center justify-between z-10 border-b border-[#f1f3f4]">
-        <div className="flex items-center gap-3">
-          <div className="p-2 sm:p-2.5 bg-[#1a73e8] rounded-2xl shadow-md shadow-[#1a73e8]/20 flex items-center justify-center text-white">
-            <Video className="w-5 h-5" />
+      <header className="w-full bg-white/90 backdrop-blur-md border-b border-[#f1f3f4] sticky top-0 z-30 px-4 sm:px-8 py-3">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 bg-[#1a73e8] rounded-2xl shadow-md shadow-[#1a73e8]/20 flex items-center justify-center text-white shrink-0">
+              <Video className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-lg sm:text-xl font-bold tracking-tight text-[#202124]">Meet Studio</span>
+              <span className="text-xs text-[#5f6368] hidden sm:inline sm:ml-2">• Story & Motive</span>
+            </div>
           </div>
-          <div>
-            <span className="text-xl font-bold tracking-tight text-[#202124]">Meet Studio</span>
-            <span className="text-xs text-[#5f6368] block sm:inline sm:ml-2">Story, Ideation & Workflow</span>
-          </div>
-        </div>
 
-        <button
-          type="button"
-          onClick={onBack}
-          className="flex items-center gap-2 bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-bold px-4 py-2 rounded-xl text-xs transition-all active:scale-95 cursor-pointer shadow-md shadow-[#1a73e8]/20"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Meetings</span>
-        </button>
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex items-center gap-2 bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-bold px-4 py-2 rounded-xl text-xs transition-all active:scale-95 cursor-pointer shadow-md shadow-[#1a73e8]/20"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Meet</span>
+          </button>
+        </div>
       </header>
 
       {/* MAIN STORY & WORKFLOW CONTENT */}
-      <main className="max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 z-10 space-y-12 sm:space-y-16 my-auto">
+      <main className="max-w-5xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-14 space-y-12 sm:space-y-16 my-auto z-10">
         {/* SECTION 1: HERO & VISION */}
         <section className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#e8f0fe] border border-[#d2e3fc] text-[#1967d2] text-xs font-bold shadow-xs">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#e8f0fe] border border-[#d2e3fc] text-[#1967d2] text-xs font-bold shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#f29900]" />
             <span>Meet Studio Vision & Motive</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#202124] leading-tight">
             How Meet Studio Came to Life
           </h1>
-          <p className="text-sm sm:text-lg text-[#5f6368] leading-relaxed">
+          <p className="text-sm sm:text-base text-[#5f6368] leading-relaxed">
             A look into the inception, architecture, end-to-end workflow, and the engineering principles behind building an unmetered, privacy-first, Google-standard video conferencing studio.
           </p>
         </section>
 
-        {/* SECTION 2: THE IDEATION & MOTIVE (How it came to life) */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* SECTION 2: THE IDEATION & MOTIVE */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center sm:text-left">
           <div className="bg-[#f8f9fa] border border-[#dadce0] p-6 rounded-3xl space-y-3 shadow-xs">
-            <div className="w-12 h-12 rounded-2xl bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center shadow-inner">
+            <div className="w-12 h-12 rounded-2xl bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center shadow-inner mx-auto sm:mx-0">
               <Lightbulb className="w-6 h-6" />
             </div>
             <h3 className="text-lg font-bold text-[#202124]">The Spark & Frustration</h3>
@@ -78,7 +80,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
           </div>
 
           <div className="bg-[#f8f9fa] border border-[#dadce0] p-6 rounded-3xl space-y-3 shadow-xs">
-            <div className="w-12 h-12 rounded-2xl bg-[#e6f4ea] text-[#188038] flex items-center justify-center shadow-inner">
+            <div className="w-12 h-12 rounded-2xl bg-[#e6f4ea] text-[#188038] flex items-center justify-center shadow-inner mx-auto sm:mx-0">
               <Target className="w-6 h-6" />
             </div>
             <h3 className="text-lg font-bold text-[#202124]">The Core Objective</h3>
@@ -88,19 +90,19 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
           </div>
 
           <div className="bg-[#f8f9fa] border border-[#dadce0] p-6 rounded-3xl space-y-3 shadow-xs">
-            <div className="w-12 h-12 rounded-2xl bg-[#fef7e0] text-[#f29900] flex items-center justify-center shadow-inner">
+            <div className="w-12 h-12 rounded-2xl bg-[#fef7e0] text-[#f29900] flex items-center justify-center shadow-inner mx-auto sm:mx-0">
               <Compass className="w-6 h-6" />
             </div>
             <h3 className="text-lg font-bold text-[#202124]">The Philosophy</h3>
             <p className="text-xs sm:text-sm text-[#5f6368] leading-relaxed">
-              Zero clutter, clean light-mode minimalism, privacy by design with knocking approval queues, and collaborative tools (Jamboard & Polls) built straight into the call canvas.
+              Zero clutter, clean light-mode minimalism, privacy by design with knocking approval queues, real-time in-call chat, and floating emoji reactions.
             </p>
           </div>
         </section>
 
-        {/* SECTION 3: COMPLETE END-TO-END WORKFLOW DIAGRAM */}
-        <section className="bg-white border border-[#dadce0] rounded-3xl p-6 sm:p-10 space-y-8 shadow-xl">
-          <div className="space-y-2 text-left">
+        {/* SECTION 3: COMPLETE END-TO-END WORKFLOW */}
+        <section className="bg-white border border-[#dadce0] rounded-3xl p-6 sm:p-10 space-y-8 shadow-xl text-center sm:text-left">
+          <div className="space-y-2">
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
               <Workflow className="w-4 h-4" /> System Workflow
             </div>
@@ -114,8 +116,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Step 1 */}
-            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3 relative">
-              <div className="w-8 h-8 rounded-full bg-[#1a73e8] text-white flex items-center justify-center text-xs font-bold">
+            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3">
+              <div className="w-8 h-8 rounded-full bg-[#1a73e8] text-white flex items-center justify-center text-xs font-bold mx-auto sm:mx-0">
                 1
               </div>
               <h4 className="text-sm font-bold text-[#202124]">Room Creation</h4>
@@ -125,8 +127,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
             </div>
 
             {/* Step 2 */}
-            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3 relative">
-              <div className="w-8 h-8 rounded-full bg-[#188038] text-white flex items-center justify-center text-xs font-bold">
+            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3">
+              <div className="w-8 h-8 rounded-full bg-[#188038] text-white flex items-center justify-center text-xs font-bold mx-auto sm:mx-0">
                 2
               </div>
               <h4 className="text-sm font-bold text-[#202124]">Green Room Preview</h4>
@@ -136,8 +138,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
             </div>
 
             {/* Step 3 */}
-            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3 relative">
-              <div className="w-8 h-8 rounded-full bg-[#f29900] text-white flex items-center justify-center text-xs font-bold">
+            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3">
+              <div className="w-8 h-8 rounded-full bg-[#f29900] text-white flex items-center justify-center text-xs font-bold mx-auto sm:mx-0">
                 3
               </div>
               <h4 className="text-sm font-bold text-[#202124]">Waiting Room Knock</h4>
@@ -147,22 +149,22 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
             </div>
 
             {/* Step 4 */}
-            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3 relative">
-              <div className="w-8 h-8 rounded-full bg-[#a142f4] text-white flex items-center justify-center text-xs font-bold">
+            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3">
+              <div className="w-8 h-8 rounded-full bg-[#a142f4] text-white flex items-center justify-center text-xs font-bold mx-auto sm:mx-0">
                 4
               </div>
               <h4 className="text-sm font-bold text-[#202124]">SFU WebRTC Call</h4>
               <p className="text-[11px] text-[#5f6368] leading-relaxed">
-                Connected via LiveKit Cloud SFU with real-time Whiteboard stroke sync, live Polls, DataChannel chat, and emoji bursts.
+                Connected via LiveKit Cloud SFU with real-time DataChannel chat, emoji bursts, closed captions, and screen sharing.
               </p>
             </div>
           </div>
         </section>
 
         {/* SECTION 4: FULL-STACK TECHNICAL ARCHITECTURE */}
-        <section className="bg-[#f8f9fa] border border-[#dadce0] rounded-3xl p-6 sm:p-10 space-y-6 shadow-md">
+        <section className="bg-[#f8f9fa] border border-[#dadce0] rounded-3xl p-6 sm:p-10 space-y-6 shadow-md text-center sm:text-left">
           <div className="space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#202124] tracking-tight flex items-center gap-2">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#202124] tracking-tight flex items-center justify-center sm:justify-start gap-2">
               <Cpu className="w-7 h-7 text-[#1a73e8]" />
               <span>Full-Stack Technology Stack</span>
             </h2>
@@ -173,7 +175,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-4 bg-white border border-[#dadce0] rounded-2xl space-y-2 shadow-2xs">
-              <div className="flex items-center gap-2 text-[#1a73e8] font-bold text-xs">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-[#1a73e8] font-bold text-xs">
                 <Code2 className="w-4 h-4" /> Frontend Studio
               </div>
               <p className="text-xs font-semibold text-[#202124]">React 19 + TypeScript + Vite</p>
@@ -181,7 +183,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
             </div>
 
             <div className="p-4 bg-white border border-[#dadce0] rounded-2xl space-y-2 shadow-2xs">
-              <div className="flex items-center gap-2 text-[#188038] font-bold text-xs">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-[#188038] font-bold text-xs">
                 <Server className="w-4 h-4" /> Backend Infrastructure
               </div>
               <p className="text-xs font-semibold text-[#202124]">Node.js + Express REST</p>
@@ -189,7 +191,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
             </div>
 
             <div className="p-4 bg-white border border-[#dadce0] rounded-2xl space-y-2 shadow-2xs">
-              <div className="flex items-center gap-2 text-[#a142f4] font-bold text-xs">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-[#a142f4] font-bold text-xs">
                 <Globe className="w-4 h-4" /> Global WebRTC Media
               </div>
               <p className="text-xs font-semibold text-[#202124]">LiveKit Cloud SFU</p>
@@ -197,7 +199,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
             </div>
 
             <div className="p-4 bg-white border border-[#dadce0] rounded-2xl space-y-2 shadow-2xs">
-              <div className="flex items-center gap-2 text-[#f29900] font-bold text-xs">
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-[#f29900] font-bold text-xs">
                 <Zap className="w-4 h-4" /> Audio Synthesis
               </div>
               <p className="text-xs font-semibold text-[#202124]">Web Audio API Engine</p>
@@ -256,7 +258,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
               onClick={onBack}
               className="flex items-center gap-2 bg-[#1a73e8] hover:bg-[#1b66ca] text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-md shadow-[#1a73e8]/20 transition-all active:scale-95 cursor-pointer ml-auto"
             >
-              <span>Launch a Meeting</span>
+              <span>Launch Meeting</span>
               <ArrowLeft className="w-4 h-4 rotate-180" />
             </button>
           </div>
@@ -264,7 +266,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
       </main>
 
       {/* FOOTER */}
-      <footer className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 text-center text-xs text-[#5f6368] border-t border-[#f1f3f4] flex flex-col sm:flex-row items-center justify-between gap-2 z-10">
+      <footer className="w-full bg-[#f8f9fa] border-t border-[#f1f3f4] py-4 px-4 sm:px-8 text-center text-xs text-[#5f6368] flex flex-col sm:flex-row items-center justify-between gap-2">
         <p>Meet Studio • Crafted with <Heart className="w-3.5 h-3.5 inline text-rose-500 fill-rose-500" /> by Govind Sharma</p>
         <p className="text-[11px] text-[#80868b]">All rights reserved © 2026</p>
       </footer>

@@ -10,7 +10,6 @@ import { MeetingControlBar } from './components/MeetingControlBar';
 import { HostApprovalBanner } from './components/HostApprovalBanner';
 import { InCallChatDrawer, type ChatMessage } from './components/InCallChatDrawer';
 import { PeopleDrawer } from './components/PeopleDrawer';
-import { ActivitiesDrawer } from './components/ActivitiesDrawer';
 import { MeetingDetailsDrawer } from './components/MeetingDetailsDrawer';
 import { HostControlsDrawer } from './components/HostControlsDrawer';
 import { LeaveConfirmModal } from './components/LeaveConfirmModal';
@@ -45,13 +44,12 @@ export default function App() {
   const [inGreenRoom, setInGreenRoom] = useState(false);
   const [showAboutPage, setShowAboutPage] = useState(() => window.location.pathname === '/about');
   const [showInCallAboutModal, setShowInCallAboutModal] = useState(false);
-  const [activitiesInitialTab, setActivitiesInitialTab] = useState<'menu' | 'whiteboard' | 'polls'>('menu');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'pending' | 'denied'>('idle');
   const [pendingGuests, setPendingGuests] = useState<any[]>([]);
 
-  // Modals & Sidebars
-  const [activeSidebar, setActiveSidebar] = useState<'details' | 'people' | 'chat' | 'activities' | 'host' | null>(null);
+  // Modals & Sidebars (Activities completely removed)
+  const [activeSidebar, setActiveSidebar] = useState<'details' | 'people' | 'chat' | 'host' | null>(null);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [rejoinRoom, setRejoinRoom] = useState<{ roomName: string; token: string } | null>(null);
@@ -65,7 +63,6 @@ export default function App() {
   const [handRaisedUsers, setHandRaisedUsers] = useState<string[]>([]);
   const [isLocalHandRaised, setIsLocalHandRaised] = useState(false);
   const [captionsEnabled, setCaptionsEnabled] = useState(false);
-  const [externalDrawData, setExternalDrawData] = useState<any>(null);
 
   const roomInstanceRef = useRef<any>(null);
 
@@ -506,7 +503,7 @@ export default function App() {
       {/* Custom Toast Notification Container */}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
 
-      {/* VIEW 0: ABOUT / WALKTHROUGH & CREATOR PAGE (Full page outside call) */}
+      {/* VIEW 0: ABOUT / WALKTHROUGH & CREATOR PAGE (Outside call) */}
       {!token && showAboutPage && (
         <AboutPage
           onBack={() => {
@@ -586,7 +583,7 @@ export default function App() {
         />
       )}
 
-      {/* VIEW 3: LIVE MEET STUDIO CALL CANVAS (ALWAYS KEPT ACTIVE & NEVER UNMOUNTED ON DIALOGS) */}
+      {/* VIEW 3: LIVE MEET STUDIO CALL CANVAS */}
       {token && (
         <div className="flex flex-col h-[100dvh] w-screen bg-[#f8f9fa] overflow-hidden relative select-none">
           <LiveKitRoom
@@ -619,7 +616,6 @@ export default function App() {
                   setHandRaisedUsers((prev) => prev.filter((u) => u !== identity));
                 }
               }}
-              onReceiveDrawEvent={(data) => setExternalDrawData(data)}
             />
 
             {/* Knocking Approval Banner for Host */}
@@ -643,7 +639,7 @@ export default function App() {
                 <MeetingStage handRaisedUsers={handRaisedUsers} />
               </div>
 
-              {/* SIDEBARS */}
+              {/* SIDEBARS (Clean & Streamlined) */}
               <MeetingDetailsDrawer
                 isOpen={activeSidebar === 'details'}
                 onClose={() => setActiveSidebar(null)}
@@ -669,13 +665,6 @@ export default function App() {
                 isHost={isHost}
                 chatEnabled={chatEnabled}
                 onToggleChatEnabled={(enabled) => setChatEnabled(enabled)}
-              />
-
-              <ActivitiesDrawer
-                isOpen={activeSidebar === 'activities'}
-                onClose={() => setActiveSidebar(null)}
-                initialTab={activitiesInitialTab}
-                externalDrawEvent={externalDrawData}
               />
 
               {isHost && (
@@ -705,10 +694,6 @@ export default function App() {
                 setActiveSidebar((prev) => (prev === tab ? null : tab))
               }
               onOpenSettings={() => setShowSettingsModal(true)}
-              onOpenWhiteboard={() => {
-                setActivitiesInitialTab('whiteboard');
-                setActiveSidebar('activities');
-              }}
               onOpenAbout={() => setShowInCallAboutModal(true)}
             />
 
@@ -719,7 +704,7 @@ export default function App() {
                 onClick={() => setShowInCallAboutModal(false)}
               >
                 <div
-                  className="bg-white border border-[#dadce0] rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-5 shadow-2xl animate-in zoom-in-95 duration-150"
+                  className="bg-white border border-[#dadce0] rounded-3xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-2xl animate-in zoom-in-95 duration-150 text-center sm:text-left"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-center justify-between pb-3 border-b border-[#f1f3f4]">
@@ -732,11 +717,11 @@ export default function App() {
                       <X className="w-5 h-5" />
                     </button>
                   </div>
-                  <div className="space-y-4 text-xs sm:text-sm text-[#5f6368] leading-relaxed">
+                  <div className="space-y-3 text-xs sm:text-sm text-[#5f6368] leading-relaxed">
                     <p className="font-semibold text-[#202124]">
                       Meet Studio was engineered to provide high-speed, zero-friction, encrypted video conferencing without artificial limits or paywalls.
                     </p>
-                    <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl space-y-2">
+                    <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl space-y-1.5">
                       <p className="font-bold text-[#202124]">Creator: Govind Sharma</p>
                       <p>GitHub: <a href="https://github.com/GovindxSharma" target="_blank" rel="noopener noreferrer" className="text-[#1a73e8] underline font-bold">@GovindxSharma</a></p>
                       <p>Email: <a href="mailto:contact@meetstudio.dev" className="text-[#1a73e8] underline font-bold">contact@meetstudio.dev</a></p>
