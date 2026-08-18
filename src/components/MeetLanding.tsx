@@ -1,5 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Video, Plus, Link as LinkIcon, Check, Sparkles, ShieldCheck, Copy, ClipboardPaste, ArrowRight } from 'lucide-react';
+import {
+  Video,
+  Plus,
+  Link as LinkIcon,
+  Check,
+  Copy,
+  Calendar,
+  Keyboard,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Users,
+  Shield,
+  ArrowRight,
+  Trash2,
+} from 'lucide-react';
+import { SettingsModal } from './SettingsModal';
 
 interface MeetLandingProps {
   roomInput: string;
@@ -23,10 +40,44 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
   onJoinWithCode,
   loading,
 }) => {
+  const [currentTime, setCurrentTime] = useState('');
+  const [currentDate, setCurrentDate] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
+  const [showCreatedModal, setShowCreatedModal] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [recentMeetings, setRecentMeetings] = useState<{ code: string; date: string }[]>([]);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Real-time clock & date
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      setCurrentDate(
+        now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
+      );
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Load recent meetings from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('gmeet_recent_meetings');
+    if (saved) {
+      try {
+        setRecentMeetings(JSON.parse(saved));
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, []);
+
+  // Dropdown click outside listener
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -34,73 +85,124 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
       }
     };
 
-    if (showDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('touchstart', handleClickOutside);
-    }
-
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [showDropdown]);
+  }, []);
+
+  // Carousel auto-advance
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCarouselIndex((prev) => (prev + 1) % 4);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleCreateLinkForLater = async () => {
     setShowDropdown(false);
     const link = await onCreateLinkForLater();
     if (link) {
+      setShowCreatedModal(link);
       setCopiedLink(link);
-      setTimeout(() => setCopiedLink(null), 6000);
+      setTimeout(() => setCopiedLink(null), 4000);
     }
   };
 
-  const handlePasteFromClipboard = async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      if (text) {
-        setRoomInput(text);
-      }
-    } catch (err) {
-      console.error('Failed to read clipboard:', err);
-    }
+  const handleClearHistory = () => {
+    localStorage.removeItem('gmeet_recent_meetings');
+    setRecentMeetings([]);
   };
+
+  const carouselItems = [
+    {
+      title: 'Get a link that you can share',
+      desc: 'Click "New meeting" to get a link you can send to people you want to meet with.',
+      icon: <LinkIcon className="w-12 h-12 text-[#8ab4f8]" />,
+      accent: 'from-[#1a73e8]/20 to-[#8ab4f8]/10',
+    },
+    {
+      title: 'See everyone together',
+      desc: 'To see more people at the same time, join or start a meeting with auto-adaptive tile grids.',
+      icon: <Users className="w-12 h-12 text-emerald-400" />,
+      accent: 'from-emerald-600/20 to-teal-500/10',
+    },
+    {
+      title: 'Plan ahead with scheduled calls',
+      desc: 'Create secure meeting links ahead of time and invite teammates and friends.',
+      icon: <Calendar className="w-12 h-12 text-amber-400" />,
+      accent: 'from-amber-600/20 to-orange-500/10',
+    },
+    {
+      title: 'Your meeting is safe and secure',
+      desc: 'No one can join a meeting unless invited or admitted by the meeting host.',
+      icon: <Shield className="w-12 h-12 text-violet-400" />,
+      accent: 'from-violet-600/20 to-purple-500/10',
+    },
+  ];
 
   return (
-    <div className="min-h-[100dvh] w-full bg-[#090D16] text-white font-sans flex flex-col justify-between p-4 sm:p-6 lg:p-8 relative overflow-x-hidden select-none">
-      {/* Background Radial Glows */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] bg-indigo-600/15 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none" />
+    <div className="min-h-[100dvh] w-full bg-[#131314] text-white font-sans flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none relative overflow-x-hidden">
+      {/* Background Radial Glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#1a73e8]/10 rounded-full blur-[140px] pointer-events-none" />
 
-      {/* Header */}
-      <header className="max-w-7xl w-full mx-auto flex items-center justify-between py-2 sm:py-3 z-10">
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <div className="p-2 sm:p-2.5 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-xl sm:rounded-2xl shadow-lg shadow-indigo-500/20">
-            <Video className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+      {/* TOP BAR */}
+      <header className="max-w-7xl w-full mx-auto flex items-center justify-between py-2 z-10">
+        {/* Google Meet Branding */}
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-gradient-to-tr from-[#1a73e8] to-[#8ab4f8] rounded-2xl shadow-lg shadow-[#1a73e8]/25 flex items-center justify-center">
+            <Video className="w-6 h-6 text-white" />
           </div>
-          <span className="text-lg sm:text-xl font-bold tracking-tight text-white">Meet Studio</span>
+          <div className="flex flex-col">
+            <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
+              Google Meet <span className="text-xs font-normal text-[#8ab4f8] bg-[#8ab4f8]/10 px-2 py-0.5 rounded-full border border-[#8ab4f8]/20">Studio</span>
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold bg-slate-900/90 border border-slate-800/80 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-slate-300 backdrop-blur-md">
-          <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
-          <span>Encrypted WebRTC</span>
+        {/* Right Info & Actions */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="text-xs font-medium text-slate-300 hidden sm:flex items-center gap-2">
+            <span>{currentTime}</span>
+            <span className="text-slate-600">•</span>
+            <span>{currentDate}</span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setShowSettings(true)}
+              title="Settings"
+              className="p-2.5 text-slate-400 hover:text-white rounded-full hover:bg-[#202124] transition-colors cursor-pointer"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#1a73e8] to-[#8ab4f8] flex items-center justify-center text-white text-xs font-bold shadow-md">
+              {participantName ? participantName.charAt(0).toUpperCase() : 'U'}
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* Main Hero */}
-      <main className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center py-6 sm:py-12 z-10 my-auto">
-        <div className="lg:col-span-7 space-y-6 sm:space-y-8">
-          <div className="space-y-3 sm:space-y-4 text-left">
+      {/* MAIN HERO */}
+      <main className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-14 items-center py-6 sm:py-10 z-10 my-auto">
+        {/* LEFT COLUMN: Controls & Input */}
+        <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-left">
+          <div className="space-y-3 sm:space-y-4">
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-white">
-              Video calls and meetings for everyone
+              Premium video meetings. Now free for everyone.
             </h1>
-            <p className="text-sm sm:text-lg text-slate-400 max-w-lg leading-relaxed">
-              Connect, collaborate, and celebrate from anywhere with crystal clear audio and video.
+            <p className="text-sm sm:text-base text-slate-400 max-w-xl leading-relaxed">
+              We re-engineered the service that we built for secure business meetings, Google Meet, to make it free and available for all.
             </p>
           </div>
 
-          <div className="space-y-5 max-w-lg">
+          <div className="space-y-5 max-w-xl">
             {/* Display Name Input */}
-            <div>
-              <label className="block text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Your Display Name
               </label>
               <input
@@ -108,31 +210,32 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
                 placeholder="e.g. Sarah Jenkins"
                 value={participantName}
                 onChange={(e) => setParticipantName(e.target.value)}
-                className="w-full bg-slate-900/90 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl sm:rounded-2xl px-4 py-3 sm:py-3.5 text-sm text-white placeholder-slate-500 outline-none transition-all shadow-inner"
+                className="w-full bg-[#202124] border border-[#3c4043] focus:border-[#8ab4f8] focus:ring-2 focus:ring-[#8ab4f8]/20 rounded-2xl px-4 py-3.5 text-sm text-white placeholder-slate-500 outline-none transition-all"
               />
             </div>
 
             {/* Quick Actions Row */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 relative">
-              <div className="relative w-full sm:w-auto" ref={dropdownRef}>
+              {/* New Meeting Dropdown */}
+              <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold px-6 py-3.5 rounded-xl sm:rounded-2xl shadow-lg shadow-indigo-600/30 active:scale-[0.98] transition-all text-sm whitespace-nowrap cursor-pointer min-h-[46px]"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-semibold px-6 py-3.5 rounded-2xl shadow-lg shadow-[#1a73e8]/30 active:scale-95 transition-all text-sm whitespace-nowrap cursor-pointer min-h-[48px]"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Video className="w-4 h-4" />
                   <span>New meeting</span>
                 </button>
 
                 {showDropdown && (
-                  <div className="absolute left-0 top-14 w-full sm:w-64 bg-slate-900 border border-slate-800/90 rounded-2xl shadow-2xl shadow-indigo-950/50 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-xl">
+                  <div className="absolute left-0 top-14 w-72 bg-[#202124] border border-[#3c4043] rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-2xl space-y-1">
                     <button
                       type="button"
                       onClick={handleCreateLinkForLater}
-                      className="w-full flex items-center gap-3 px-3.5 py-3 text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-xl transition-all text-left cursor-pointer active:scale-[0.98]"
+                      className="w-full flex items-center gap-3 px-3.5 py-3 text-xs sm:text-sm font-medium text-slate-200 hover:text-white hover:bg-[#303134] rounded-xl transition-all text-left cursor-pointer"
                     >
-                      <LinkIcon className="w-4 h-4 text-indigo-400 shrink-0" />
-                      <span>Create a meeting link for later</span>
+                      <LinkIcon className="w-4 h-4 text-[#8ab4f8] shrink-0" />
+                      <span>Create a meeting for later</span>
                     </button>
                     <button
                       type="button"
@@ -140,110 +243,182 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
                         setShowDropdown(false);
                         onStartInstantMeeting();
                       }}
-                      className="w-full flex items-center gap-3 px-3.5 py-3 text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-xl transition-all text-left cursor-pointer active:scale-[0.98]"
+                      className="w-full flex items-center gap-3 px-3.5 py-3 text-xs sm:text-sm font-medium text-slate-200 hover:text-white hover:bg-[#303134] rounded-xl transition-all text-left cursor-pointer"
                     >
-                      <Plus className="w-4 h-4 text-indigo-400 shrink-0" />
+                      <Plus className="w-4 h-4 text-[#8ab4f8] shrink-0" />
                       <span>Start an instant meeting</span>
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* Instant Code / Link Join Form */}
+              {/* Code / Link Join Form */}
               <form onSubmit={onJoinWithCode} className="flex-1 flex items-center gap-2 w-full">
                 <div className="relative flex-1">
-                  <LinkIcon className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <Keyboard className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Enter code or paste link"
+                    placeholder="Enter a code or link"
                     value={roomInput}
                     onChange={(e) => setRoomInput(e.target.value)}
-                    className="w-full bg-slate-900/90 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl sm:rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder-slate-500 outline-none transition-all shadow-inner min-h-[46px]"
+                    className="w-full bg-[#202124] border border-[#3c4043] focus:border-[#8ab4f8] focus:ring-2 focus:ring-[#8ab4f8]/20 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder-slate-500 outline-none transition-all min-h-[48px]"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={!roomInput.trim() || loading}
-                  className="bg-slate-800 hover:bg-slate-700/80 disabled:opacity-40 text-indigo-400 font-semibold px-5 py-3.5 rounded-xl sm:rounded-2xl transition-all text-sm disabled:cursor-not-allowed cursor-pointer active:scale-[0.98] min-h-[46px] shrink-0 border border-slate-700/50"
+                  className="bg-[#202124] hover:bg-[#303134] disabled:opacity-40 text-[#8ab4f8] font-bold px-6 py-3.5 rounded-2xl border border-[#3c4043] transition-all text-sm disabled:cursor-not-allowed cursor-pointer active:scale-95 min-h-[48px] shrink-0"
                 >
                   Join
                 </button>
               </form>
             </div>
 
-            {/* Dedicated Quick Paste Meeting Link Card */}
-            <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-4 space-y-3 backdrop-blur-xl">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] font-semibold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <ClipboardPaste className="w-3.5 h-3.5" /> Quick Paste Shared Meeting Link
-                </label>
-                <button
-                  type="button"
-                  onClick={handlePasteFromClipboard}
-                  className="text-[11px] font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg transition-all active:scale-95 cursor-pointer"
-                >
-                  Paste from Clipboard
-                </button>
+            {/* Recent Meetings Shortcut List (if any) */}
+            {recentMeetings.length > 0 && (
+              <div className="bg-[#202124]/60 border border-[#3c4043] rounded-2xl p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-[#8ab4f8]" /> Recent Meetings
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleClearHistory}
+                    className="text-[10px] text-slate-500 hover:text-rose-400 transition-colors flex items-center gap-1 cursor-pointer"
+                  >
+                    <Trash2 className="w-3 h-3" /> Clear
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {recentMeetings.slice(0, 4).map((m) => (
+                    <button
+                      key={m.code}
+                      type="button"
+                      onClick={() => setRoomInput(m.code)}
+                      className="bg-[#303134] hover:bg-[#3c4043] text-slate-200 hover:text-white px-3 py-1.5 rounded-xl text-xs font-mono transition-colors cursor-pointer active:scale-95 flex items-center gap-1.5"
+                    >
+                      <span>#{m.code}</span>
+                      <ArrowRight className="w-3 h-3 text-[#8ab4f8]" />
+                    </button>
+                  ))}
+                </div>
               </div>
-
-              <form onSubmit={onJoinWithCode} className="flex items-center gap-2">
-                <input
-                  type="text"
-                  placeholder="Paste URL here (e.g., https://.../room/abc-defg-hij)"
-                  value={roomInput}
-                  onChange={(e) => setRoomInput(e.target.value)}
-                  className="w-full bg-slate-950/80 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none"
-                />
-                <button
-                  type="submit"
-                  disabled={!roomInput.trim() || loading}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2.5 rounded-xl text-xs transition-all flex items-center gap-1 shrink-0 disabled:opacity-40 cursor-pointer active:scale-95 shadow-md shadow-indigo-600/30"
-                >
-                  <span>Join Call</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </form>
-            </div>
+            )}
           </div>
-
-          {/* Generated Link Banner Toast */}
-          {copiedLink && (
-            <div className="p-4 bg-emerald-950/70 border border-emerald-500/40 rounded-2xl flex items-center justify-between gap-3 max-w-lg text-xs text-emerald-200 animate-in fade-in duration-300 backdrop-blur-md shadow-xl">
-              <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
-                <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="truncate">Here's your host link: <strong className="text-white select-all">{copiedLink}</strong></span>
-              </div>
-              <button
-                type="button"
-                onClick={() => navigator.clipboard.writeText(copiedLink)}
-                className="bg-emerald-500/20 hover:bg-emerald-500/30 px-2.5 py-1.5 rounded-lg text-emerald-300 font-semibold shrink-0 cursor-pointer transition-all flex items-center gap-1 active:scale-95"
-              >
-                <Copy className="w-3 h-3" />
-                <span>Copied</span>
-              </button>
-            </div>
-          )}
         </div>
 
-        {/* Feature Display Card */}
+        {/* RIGHT COLUMN: Feature Carousel Card */}
         <div className="lg:col-span-5 flex justify-center w-full">
-          <div className="w-full max-w-md bg-slate-900/60 border border-slate-800/80 rounded-2xl sm:rounded-3xl p-6 sm:p-8 backdrop-blur-2xl text-center space-y-5 sm:space-y-6 shadow-2xl shadow-indigo-950/30">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-600/15 border border-indigo-500/30 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto text-indigo-400 shadow-inner">
-              <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400" />
+          <div className="w-full max-w-md bg-[#202124] border border-[#3c4043] rounded-3xl p-6 sm:p-8 backdrop-blur-2xl text-center space-y-6 shadow-2xl relative overflow-hidden">
+            {/* Carousel Content */}
+            <div className="space-y-6 transition-all duration-300">
+              <div
+                className={`w-20 h-20 rounded-3xl bg-gradient-to-tr ${carouselItems[carouselIndex].accent} border border-[#3c4043] flex items-center justify-center mx-auto shadow-inner`}
+              >
+                {carouselItems[carouselIndex].icon}
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-white tracking-tight">
+                  {carouselItems[carouselIndex].title}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-xs mx-auto">
+                  {carouselItems[carouselIndex].desc}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">Get a link you can share</h3>
-              <p className="text-xs sm:text-sm text-slate-400 mt-2 leading-relaxed">
-                Click <strong>New meeting</strong> to generate a shareable URL link with secure host permissions attached.
-              </p>
+
+            {/* Carousel Navigation Dots */}
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setCarouselIndex((prev) => (prev === 0 ? carouselItems.length - 1 : prev - 1))
+                }
+                className="p-1 text-slate-500 hover:text-white transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {carouselItems.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCarouselIndex(idx)}
+                  className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
+                    carouselIndex === idx ? 'w-6 bg-[#8ab4f8]' : 'bg-[#3c4043]'
+                  }`}
+                />
+              ))}
+
+              <button
+                type="button"
+                onClick={() => setCarouselIndex((prev) => (prev + 1) % carouselItems.length)}
+                className="p-1 text-slate-500 hover:text-white transition-colors cursor-pointer"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="max-w-7xl w-full mx-auto text-center text-[11px] sm:text-xs text-slate-600 py-3 sm:py-4 border-t border-slate-950">
-        Google Meet Clone • Built with LiveKit WebRTC & React
+      {/* CREATE FOR LATER POPUP MODAL */}
+      {showCreatedModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setShowCreatedModal(null)}
+        >
+          <div
+            className="bg-[#202124] border border-[#3c4043] rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-white">Here's the link to your meeting</h3>
+              <button
+                type="button"
+                onClick={() => setShowCreatedModal(null)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-full hover:bg-[#303134] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Copy this link and send it to people that you want to meet with. Be sure to save it so that you can use it later too.
+            </p>
+
+            <div className="flex items-center gap-2 bg-[#131314] border border-[#3c4043] p-2.5 rounded-2xl">
+              <span className="text-xs font-mono text-[#8ab4f8] truncate flex-1 select-all">
+                {showCreatedModal}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(showCreatedModal);
+                  setCopiedLink(showCreatedModal);
+                }}
+                className="bg-[#1a73e8] hover:bg-[#1b66ca] text-white p-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95"
+              >
+                {copiedLink ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowCreatedModal(null)}
+              className="w-full bg-[#303134] hover:bg-[#3c4043] text-white py-3 rounded-2xl text-xs font-semibold transition-all cursor-pointer"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* SETTINGS MODAL */}
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+
+      {/* FOOTER */}
+      <footer className="max-w-7xl w-full mx-auto text-center text-xs text-slate-600 py-3 border-t border-[#202124]">
+        Google Meet • High Definition Secure Video Conferencing
       </footer>
     </div>
   );

@@ -1,1 +1,29 @@
 @import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #131314;
+    color: #ffffff;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Google Dark Theme Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #171717;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3c4043;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5f6368;
+}
