@@ -15,6 +15,7 @@ import {
   Shield,
   ArrowRight,
   Trash2,
+  BookOpen,
 } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
 
@@ -26,6 +27,7 @@ interface MeetLandingProps {
   onStartInstantMeeting: () => void;
   onCreateLinkForLater: () => Promise<string | null>;
   onJoinWithCode: (e: React.FormEvent) => void;
+  onOpenAbout?: () => void;
   loading: boolean;
   status?: 'idle' | 'pending' | 'denied';
 }
@@ -38,6 +40,7 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
   onStartInstantMeeting,
   onCreateLinkForLater,
   onJoinWithCode,
+  onOpenAbout,
   loading,
 }) => {
   const [currentTime, setCurrentTime] = useState('');
@@ -144,26 +147,35 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
   ];
 
   return (
-    <div className="min-h-[100dvh] w-full bg-[#ffffff] text-[#202124] font-sans flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none relative overflow-x-hidden">
-      {/* Subtle Background Header Accent */}
+    <div className="min-h-[100dvh] w-full bg-[#ffffff] text-[#202124] font-sans flex flex-col justify-between p-3 sm:p-6 lg:p-8 select-none relative overflow-x-hidden">
+      {/* Background Accent */}
       <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-[#f8f9fa] to-transparent pointer-events-none" />
 
       {/* TOP NAVIGATION BAR */}
-      <header className="max-w-7xl w-full mx-auto flex items-center justify-between py-2 sm:py-3 z-10 border-b border-[#f1f3f4] pb-4">
+      <header className="max-w-7xl w-full mx-auto flex items-center justify-between py-2 sm:py-3 z-10 border-b border-[#f1f3f4] pb-3 sm:pb-4">
         {/* Meet Studio Branding */}
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-[#1a73e8] rounded-2xl shadow-md shadow-[#1a73e8]/20 flex items-center justify-center text-white">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="p-2 sm:p-2.5 bg-[#1a73e8] rounded-2xl shadow-md shadow-[#1a73e8]/20 flex items-center justify-center text-white">
             <Video className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-xl sm:text-2xl font-bold tracking-tight text-[#202124] flex items-center gap-1.5">
-              Meet Studio
-            </span>
-          </div>
+          <span className="text-lg sm:text-2xl font-bold tracking-tight text-[#202124]">
+            Meet Studio
+          </span>
         </div>
 
         {/* Right Header Elements */}
-        <div className="flex items-center gap-3 sm:gap-5">
+        <div className="flex items-center gap-2 sm:gap-4">
+          {onOpenAbout && (
+            <button
+              type="button"
+              onClick={onOpenAbout}
+              className="flex items-center gap-1.5 bg-[#e8f0fe] hover:bg-[#d2e3fc] text-[#1967d2] font-bold px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs transition-all active:scale-95 cursor-pointer shadow-2xs"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>About & Vision</span>
+            </button>
+          )}
+
           <div className="text-xs sm:text-sm font-medium text-[#5f6368] hidden md:flex items-center gap-2">
             <span>{currentTime}</span>
             <span className="text-[#dadce0]">•</span>
@@ -175,11 +187,11 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
               type="button"
               onClick={() => setShowSettings(true)}
               title="Settings"
-              className="p-2.5 text-[#5f6368] hover:text-[#202124] rounded-full hover:bg-[#f1f3f4] transition-colors cursor-pointer"
+              className="p-2 text-[#5f6368] hover:text-[#202124] rounded-full hover:bg-[#f1f3f4] transition-colors cursor-pointer"
             >
               <Settings className="w-5 h-5" />
             </button>
-            <div className="w-9 h-9 rounded-full bg-[#e8f0fe] border border-[#d2e3fc] text-[#1967d2] flex items-center justify-center text-sm font-bold shadow-xs">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#e8f0fe] border border-[#d2e3fc] text-[#1967d2] flex items-center justify-center text-xs sm:text-sm font-bold shadow-2xs">
               {participantName ? participantName.charAt(0).toUpperCase() : 'U'}
             </div>
           </div>
@@ -194,12 +206,12 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-[#202124]">
               Premium video meetings. Now free for everyone.
             </h1>
-            <p className="text-sm sm:text-lg text-[#5f6368] max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-base text-[#5f6368] max-w-xl leading-relaxed">
               We re-engineered Meet Studio to make high definition, secure, and encrypted video meetings accessible for all.
             </p>
           </div>
 
-          <div className="space-y-5 max-w-xl">
+          <div className="space-y-4 sm:space-y-5 max-w-xl">
             {/* Display Name Input */}
             <div className="space-y-1.5">
               <label className="block text-xs font-bold uppercase tracking-wider text-[#5f6368]">
@@ -213,7 +225,7 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
                   setParticipantName(e.target.value);
                   localStorage.setItem('user_display_name', e.target.value);
                 }}
-                className="w-full bg-[#f8f9fa] border border-[#dadce0] focus:border-[#1a73e8] focus:bg-white focus:ring-2 focus:ring-[#1a73e8]/20 rounded-2xl px-4 py-3.5 text-sm text-[#202124] placeholder-[#80868b] outline-none transition-all shadow-xs"
+                className="w-full bg-[#f8f9fa] border border-[#dadce0] focus:border-[#1a73e8] focus:bg-white focus:ring-2 focus:ring-[#1a73e8]/20 rounded-2xl px-4 py-3 sm:py-3.5 text-sm text-[#202124] placeholder-[#80868b] outline-none transition-all shadow-xs"
               />
             </div>
 
@@ -231,7 +243,7 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
                 </button>
 
                 {showDropdown && (
-                  <div className="absolute left-0 top-14 w-72 bg-[#ffffff] border border-[#dadce0] rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
+                  <div className="absolute left-0 top-14 w-72 bg-white border border-[#dadce0] rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
                     <button
                       type="button"
                       onClick={handleCreateLinkForLater}
@@ -270,16 +282,16 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
                 <button
                   type="submit"
                   disabled={!roomInput.trim() || loading}
-                  className="bg-[#f1f3f4] hover:bg-[#e8eaed] disabled:opacity-40 text-[#1a73e8] font-bold px-6 py-3.5 rounded-2xl border border-[#dadce0] transition-all text-sm disabled:cursor-not-allowed cursor-pointer active:scale-95 min-h-[48px] shrink-0 shadow-xs"
+                  className="bg-[#f1f3f4] hover:bg-[#e8eaed] disabled:opacity-40 text-[#1a73e8] font-bold px-5 sm:px-6 py-3.5 rounded-2xl border border-[#dadce0] transition-all text-sm disabled:cursor-not-allowed cursor-pointer active:scale-95 min-h-[48px] shrink-0 shadow-xs"
                 >
                   Join
                 </button>
               </form>
             </div>
 
-            {/* Recent Meetings History (if any) */}
+            {/* Recent Meetings History */}
             {recentMeetings.length > 0 && (
-              <div className="bg-[#f8f9fa] border border-[#dadce0] rounded-2xl p-4 space-y-2.5">
+              <div className="bg-[#f8f9fa] border border-[#dadce0] rounded-2xl p-3.5 sm:p-4 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-[#5f6368] flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-[#1a73e8]" /> Recent Meetings
@@ -298,7 +310,7 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
                       key={m.code}
                       type="button"
                       onClick={() => setRoomInput(m.code)}
-                      className="bg-white hover:bg-[#e8f0fe] border border-[#dadce0] hover:border-[#1a73e8]/40 text-[#3c4043] hover:text-[#1967d2] px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer active:scale-95 flex items-center gap-1.5 shadow-xs"
+                      className="bg-white hover:bg-[#e8f0fe] border border-[#dadce0] hover:border-[#1a73e8]/40 text-[#3c4043] hover:text-[#1967d2] px-3 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer active:scale-95 flex items-center gap-1.5 shadow-2xs"
                     >
                       <span>#{m.code}</span>
                       <ArrowRight className="w-3 h-3 text-[#1a73e8]" />

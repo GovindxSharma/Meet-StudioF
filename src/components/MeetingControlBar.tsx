@@ -20,6 +20,7 @@ import {
   Settings,
   PenTool,
   Subtitles,
+  BookOpen,
 } from 'lucide-react';
 import { useLocalParticipant } from '@livekit/components-react';
 import { EMOJI_LIST } from './EmojiReactions';
@@ -39,6 +40,7 @@ interface MeetingControlBarProps {
   onToggleSidebar: (tab: 'details' | 'people' | 'chat' | 'activities' | 'host') => void;
   onOpenSettings: () => void;
   onOpenWhiteboard: () => void;
+  onOpenAbout?: () => void;
 }
 
 export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
@@ -56,6 +58,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
   onToggleSidebar,
   onOpenSettings,
   onOpenWhiteboard,
+  onOpenAbout,
 }) => {
   const { localParticipant, isMicrophoneEnabled, isCameraEnabled, isScreenShareEnabled } =
     useLocalParticipant();
@@ -128,16 +131,16 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
   };
 
   return (
-    <footer className="h-20 bg-white border-t border-[#dadce0] px-2 sm:px-6 flex items-center justify-between shrink-0 z-30 select-none font-sans relative shadow-sm">
-      {/* LEFT: Meeting Code & Clock */}
+    <footer className="h-18 sm:h-20 bg-white border-t border-[#dadce0] px-2 sm:px-6 flex items-center justify-between shrink-0 z-30 select-none font-sans relative shadow-sm">
+      {/* LEFT: Meeting Code & Clock (Hidden on very small mobile) */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <button
           type="button"
           onClick={() => onToggleSidebar('details')}
-          className="flex items-center gap-2 text-[#3c4043] hover:text-[#1a73e8] transition-colors cursor-pointer group"
+          className="flex items-center gap-1.5 text-[#3c4043] hover:text-[#1a73e8] transition-colors cursor-pointer group"
           title="Meeting details"
         >
-          <span className="font-semibold text-xs sm:text-sm font-mono tracking-tight group-hover:underline truncate max-w-[80px] sm:max-w-[160px]">
+          <span className="font-semibold text-xs sm:text-sm font-mono tracking-tight group-hover:underline truncate max-w-[70px] sm:max-w-[150px]">
             {roomName}
           </span>
           <span className="text-[#dadce0] hidden md:inline">|</span>
@@ -146,12 +149,12 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
       </div>
 
       {/* CENTER: Main Control Pills */}
-      <div className="flex items-center gap-1.5 sm:gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
         {/* 1. Microphone Toggle */}
         <button
           type="button"
           onClick={() => localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled)}
-          title={isMicrophoneEnabled ? 'Turn off microphone (Ctrl+D)' : 'Turn on microphone (Ctrl+D)'}
+          title={isMicrophoneEnabled ? 'Turn off microphone' : 'Turn on microphone'}
           className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-xs ${
             isMicrophoneEnabled
               ? 'bg-[#f1f3f4] hover:bg-[#e8eaed] text-[#3c4043]'
@@ -165,7 +168,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
         <button
           type="button"
           onClick={() => localParticipant.setCameraEnabled(!isCameraEnabled)}
-          title={isCameraEnabled ? 'Turn off camera (Ctrl+E)' : 'Turn on camera (Ctrl+E)'}
+          title={isCameraEnabled ? 'Turn off camera' : 'Turn on camera'}
           className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-xs ${
             isCameraEnabled
               ? 'bg-[#f1f3f4] hover:bg-[#e8eaed] text-[#3c4043]'
@@ -175,11 +178,11 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
           {isCameraEnabled ? <Video className="w-4 h-4 sm:w-5 sm:h-5" /> : <VideoOff className="w-4 h-4 sm:w-5 sm:h-5" />}
         </button>
 
-        {/* 3. Closed Captions (CC) */}
+        {/* 3. Closed Captions (CC) (Hidden on mobile) */}
         <button
           type="button"
           onClick={onToggleCaptions}
-          title={captionsEnabled ? 'Turn off captions' : 'Turn on captions (c)'}
+          title={captionsEnabled ? 'Turn off captions' : 'Turn on captions'}
           className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full hidden sm:flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-xs ${
             captionsEnabled
               ? 'bg-[#e8f0fe] text-[#1967d2] border border-[#d2e3fc]'
@@ -214,7 +217,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
                     onTriggerReaction(emoji);
                     setShowEmojiPicker(false);
                   }}
-                  className="w-10 h-10 rounded-2xl hover:bg-[#f1f3f4] text-2xl flex items-center justify-center transition-transform hover:scale-125 active:scale-95 cursor-pointer"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl hover:bg-[#f1f3f4] text-xl sm:text-2xl flex items-center justify-center transition-transform hover:scale-125 active:scale-95 cursor-pointer"
                 >
                   {emoji}
                 </button>
@@ -223,7 +226,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
           )}
         </div>
 
-        {/* 5. Screen Share (Present Now) */}
+        {/* 5. Screen Share (Present Now) (Hidden on mobile) */}
         <button
           type="button"
           onClick={() => localParticipant.setScreenShareEnabled(!isScreenShareEnabled)}
@@ -263,7 +266,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
           </button>
 
           {showMoreMenu && (
-            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-60 bg-white border border-[#dadce0] rounded-2xl p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
+            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-56 sm:w-60 bg-white border border-[#dadce0] rounded-2xl p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
               <button
                 type="button"
                 onClick={() => {
@@ -273,7 +276,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm text-[#3c4043] hover:bg-[#f1f3f4] hover:text-[#202124] transition-colors cursor-pointer text-left"
               >
                 <PenTool className="w-4 h-4 text-[#1a73e8]" />
-                <span>Open a Whiteboard</span>
+                <span>Open Whiteboard</span>
               </button>
 
               <button
@@ -305,6 +308,20 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
                 <Settings className="w-4 h-4 text-[#1a73e8]" />
                 <span>Settings</span>
               </button>
+
+              {onOpenAbout && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowMoreMenu(false);
+                    onOpenAbout();
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm text-[#1967d2] hover:bg-[#e8f0fe] transition-colors cursor-pointer text-left border-t border-[#f1f3f4] mt-1 pt-2"
+                >
+                  <BookOpen className="w-4 h-4 text-[#1a73e8]" />
+                  <span>About Meet Studio</span>
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -314,7 +331,7 @@ export const MeetingControlBar: React.FC<MeetingControlBarProps> = ({
           type="button"
           onClick={onLeave}
           title="Leave call"
-          className="w-13 sm:w-16 h-10 sm:h-12 bg-[#ea4335] hover:bg-[#d93025] text-white rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md shadow-red-500/20"
+          className="w-12 sm:w-16 h-10 sm:h-12 bg-[#ea4335] hover:bg-[#d93025] text-white rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md shadow-red-500/20"
         >
           <PhoneOff className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>

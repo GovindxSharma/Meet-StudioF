@@ -6,7 +6,6 @@ import {
   VideoOff,
   Crown,
   Clock,
-  Sparkles,
   User,
   ShieldCheck,
   Settings,
@@ -41,12 +40,8 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
   const [cameraOn, setCameraOn] = useState(true);
   const [isMirrored, setIsMirrored] = useState(true);
   const [visualEffect, setVisualEffect] = useState<'normal' | 'warm' | 'studio' | 'mono'>('normal');
-  const [micLevel, setMicLevel] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
-
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const animFrameRef = useRef<number | null>(null);
 
   // Auto-fill participant name from localStorage if empty
   useEffect(() => {
@@ -58,7 +53,7 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
     }
   }, [participantName, setParticipantName]);
 
-  // Initialize camera and microphone preview stream & audio meter
+  // Initialize camera and microphone preview stream
   useEffect(() => {
     let activeStream: MediaStream | null = null;
 
@@ -70,50 +65,12 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
         if (videoRef.current) {
           videoRef.current.srcObject = mediaStream;
         }
-
-        // Setup audio level meter
-        try {
-          const AudioCtx =
-            window.AudioContext ||
-            (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-          const audioCtx = new AudioCtx();
-          audioCtxRef.current = audioCtx;
-
-          const source = audioCtx.createMediaStreamSource(mediaStream);
-          const analyser = audioCtx.createAnalyser();
-          analyser.fftSize = 256;
-          source.connect(analyser);
-
-          const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-          const checkVolume = () => {
-            if (!activeStream || activeStream.getAudioTracks().length === 0) return;
-            analyser.getByteFrequencyData(dataArray);
-            let sum = 0;
-            for (let i = 0; i < dataArray.length; i++) {
-              sum += dataArray[i];
-            }
-            const avg = sum / dataArray.length;
-            setMicLevel(Math.min(100, Math.round((avg / 128) * 100)));
-            animFrameRef.current = requestAnimationFrame(checkVolume);
-          };
-
-          checkVolume();
-        } catch (e) {
-          console.warn('Could not start audio meter:', e);
-        }
       })
       .catch((err) => console.error('Error accessing video/audio devices:', err));
 
     return () => {
       if (activeStream) {
         activeStream.getTracks().forEach((track) => track.stop());
-      }
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
-      }
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close();
       }
     };
   }, []);
@@ -153,14 +110,14 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
   };
 
   return (
-    <div className="min-h-[100dvh] w-full bg-[#ffffff] text-[#202124] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans select-none relative overflow-x-hidden">
+    <div className="min-h-[100dvh] w-full bg-[#ffffff] text-[#202124] flex items-center justify-center p-3 sm:p-6 lg:p-8 font-sans select-none relative overflow-x-hidden">
       {/* Subtle Background Accent */}
       <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-[#f8f9fa] to-transparent pointer-events-none" />
 
-      <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-10 items-center z-10">
-        {/* LEFT COLUMN: Clean Video Preview Box (No intrusive overlays) */}
+      <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-10 items-center z-10 my-auto">
+        {/* LEFT COLUMN: Clean Video Preview Box (Completely free of audio meters) */}
         <div className="lg:col-span-7 flex flex-col items-center w-full space-y-3">
-          <div className="relative w-full aspect-video bg-[#202124] border border-[#dadce0] rounded-3xl overflow-hidden shadow-xl flex items-center justify-center">
+          <div className="relative w-full aspect-video bg-[#202124] border border-[#dadce0] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl flex items-center justify-center">
             {/* Live Media Feed or Camera Off */}
             {cameraOn ? (
               <video
@@ -175,15 +132,15 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
               />
             ) : (
               <div className="flex flex-col items-center gap-3 text-slate-400 p-6 text-center">
-                <div className="w-16 h-16 rounded-full bg-[#303134] flex items-center justify-center text-slate-300">
-                  <VideoOff className="w-8 h-8" />
+                <div className="w-14 h-14 rounded-full bg-[#303134] flex items-center justify-center text-slate-300">
+                  <VideoOff className="w-7 h-7" />
                 </div>
                 <span className="text-xs font-semibold text-slate-300">Camera is turned off</span>
               </div>
             )}
 
             {/* Top Right: Mirror & Settings Icon Pills */}
-            <div className="absolute top-4 right-4 flex items-center gap-1.5">
+            <div className="absolute top-3 right-3 flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setIsMirrored(!isMirrored)}
@@ -202,32 +159,26 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
               </button>
             </div>
 
-            {/* Bottom Floating Pill Controls with integrated subtle speaking wave */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-[#202124]/85 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-2xl">
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={toggleMic}
-                  title={micOn ? 'Turn off microphone' : 'Turn on microphone'}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md ${
-                    micOn
-                      ? 'bg-[#3c4043] hover:bg-[#474a4e] text-white'
-                      : 'bg-[#ea4335] hover:bg-[#d93025] text-white'
-                  }`}
-                >
-                  {micOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
-                </button>
-                {/* Subtle speaking green dot on mic button */}
-                {micOn && micLevel > 15 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#202124] rounded-full animate-ping" />
-                )}
-              </div>
+            {/* Bottom Floating Pill Controls */}
+            <div className="absolute bottom-3.5 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-[#202124]/85 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-2xl">
+              <button
+                type="button"
+                onClick={toggleMic}
+                title={micOn ? 'Turn off microphone' : 'Turn on microphone'}
+                className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md ${
+                  micOn
+                    ? 'bg-[#3c4043] hover:bg-[#474a4e] text-white'
+                    : 'bg-[#ea4335] hover:bg-[#d93025] text-white'
+                }`}
+              >
+                {micOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+              </button>
 
               <button
                 type="button"
                 onClick={toggleCamera}
                 title={cameraOn ? 'Turn off camera' : 'Turn on camera'}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md ${
+                className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-md ${
                   cameraOn
                     ? 'bg-[#3c4043] hover:bg-[#474a4e] text-white'
                     : 'bg-[#ea4335] hover:bg-[#d93025] text-white'
@@ -238,15 +189,15 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
             </div>
           </div>
 
-          {/* Filter presets bar (Clean Light UI) */}
-          <div className="flex items-center gap-2 text-xs text-[#5f6368] pt-1">
-            <span className="text-xs font-semibold">Lighting:</span>
+          {/* Filter presets bar */}
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-[#5f6368] pt-1">
+            <span className="text-[11px] sm:text-xs font-semibold">Lighting:</span>
             {(['normal', 'warm', 'studio', 'mono'] as const).map((eff) => (
               <button
                 key={eff}
                 type="button"
                 onClick={() => setVisualEffect(eff)}
-                className={`px-3 py-1 rounded-full capitalize text-xs transition-colors cursor-pointer ${
+                className={`px-2.5 sm:px-3 py-1 rounded-full capitalize text-[11px] sm:text-xs transition-colors cursor-pointer ${
                   visualEffect === eff
                     ? 'bg-[#1a73e8] text-white font-semibold shadow-xs'
                     : 'bg-[#f1f3f4] text-[#3c4043] hover:bg-[#e8eaed]'
@@ -259,12 +210,12 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
         </div>
 
         {/* RIGHT COLUMN: Join Card (Pure Light Theme) */}
-        <div className="lg:col-span-5 w-full bg-white border border-[#dadce0] rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl text-left">
+        <div className="lg:col-span-5 w-full bg-white border border-[#dadce0] rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-5 sm:space-y-6 shadow-xl text-left">
           {/* Header Info */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#1a73e8] flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#f29900]" /> Room #{roomName}
+              <span className="text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
+                Room #{roomName}
               </span>
               <button
                 type="button"
@@ -279,7 +230,7 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
               Ready to join?
             </h2>
             <p className="text-xs sm:text-sm text-[#5f6368] mt-1">
-              Check your audio and video before entering Meet Studio.
+              Check your camera and microphone before entering Meet Studio.
             </p>
           </div>
 
@@ -302,7 +253,7 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
 
           {/* Status Notifications */}
           {status === 'pending' && (
-            <div className="p-3.5 bg-[#fef7e0] border border-[#fce8b2] rounded-2xl flex items-center justify-center gap-2.5 text-xs font-bold text-[#b06000] animate-pulse">
+            <div className="p-3.5 bg-[#fef7e0] border border-[#fce8b2] rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-[#b06000] animate-pulse">
               <Clock className="w-4 h-4 text-[#f29900]" /> Asking host to let you in...
             </div>
           )}
@@ -319,7 +270,7 @@ export const GreenRoomPreview: React.FC<GreenRoomPreviewProps> = ({
               type="button"
               onClick={onJoin}
               disabled={loading || status === 'pending' || !participantName.trim()}
-              className="w-full bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-bold py-3.5 sm:py-4 px-4 rounded-2xl shadow-md shadow-[#1a73e8]/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm cursor-pointer"
+              className="w-full bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-bold py-3.5 sm:py-4 px-4 rounded-2xl shadow-md shadow-[#1a73e8]/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm cursor-pointer min-h-[48px]"
             >
               {isHost ? <Crown className="w-4 h-4 text-amber-300" /> : null}
               {loading

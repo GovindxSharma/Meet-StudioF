@@ -19,6 +19,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { CaptionsOverlay } from './components/CaptionsOverlay';
 import { EmojiReactionsOverlay, type FloatingReaction } from './components/EmojiReactions';
 import { ToastContainer, type ToastMessage } from './components/Toast';
+import { AboutPage } from './components/AboutPage';
 import { soundManager } from './utils/soundUtils';
 
 const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL || 'wss://project-g-meet-3p15qlur.livekit.cloud';
@@ -42,6 +43,7 @@ export default function App() {
   const [token, setToken] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
   const [inGreenRoom, setInGreenRoom] = useState(false);
+  const [showAboutPage, setShowAboutPage] = useState(() => window.location.pathname === '/about');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'pending' | 'denied'>('idle');
   const [pendingGuests, setPendingGuests] = useState<any[]>([]);
@@ -484,11 +486,23 @@ export default function App() {
 
   return (
     <div className="relative min-h-[100dvh] w-full bg-white text-[#202124] font-sans overflow-x-hidden">
-      {/* Toast Notification Container */}
+      {/* Custom Toast Notification Container */}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
 
+      {/* VIEW 0: ABOUT / WALKTHROUGH & CREATOR PAGE */}
+      {showAboutPage && (
+        <AboutPage
+          onBack={() => {
+            setShowAboutPage(false);
+            if (window.location.pathname === '/about') {
+              window.history.pushState({}, '', '/');
+            }
+          }}
+        />
+      )}
+
       {/* VIEW 1: MEET STUDIO LANDING PAGE */}
-      {!inGreenRoom && !token && (
+      {!showAboutPage && !inGreenRoom && !token && (
         <div className="relative min-h-[100dvh] w-full bg-white">
           <MeetLanding
             roomInput={roomInput}
@@ -498,11 +512,15 @@ export default function App() {
             onStartInstantMeeting={handleStartInstantMeeting}
             onCreateLinkForLater={handleCreateLinkForLater}
             onJoinWithCode={handleJoinWithCode}
+            onOpenAbout={() => {
+              setShowAboutPage(true);
+              window.history.pushState({}, '', '/about');
+            }}
             loading={loading}
             status={status}
           />
 
-          {/* Rejoin Call Pill (Clean Light Theme) */}
+          {/* Rejoin Call Pill */}
           {rejoinRoom && (
             <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white border border-[#dadce0] p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4 max-w-sm w-[calc(100vw-2rem)] animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="min-w-0 flex-1">
@@ -539,7 +557,7 @@ export default function App() {
       )}
 
       {/* VIEW 2: GREEN ROOM PRE-JOIN */}
-      {inGreenRoom && !token && (
+      {!showAboutPage && inGreenRoom && !token && (
         <GreenRoomPreview
           roomName={activeRoomName || ''}
           participantName={participantName}
@@ -552,7 +570,7 @@ export default function App() {
       )}
 
       {/* VIEW 3: LIVE MEET STUDIO CALL CANVAS */}
-      {token && (
+      {!showAboutPage && token && (
         <div className="flex flex-col h-[100dvh] w-screen bg-[#f8f9fa] overflow-hidden relative select-none">
           <LiveKitRoom
             video={true}
@@ -603,7 +621,7 @@ export default function App() {
             <CaptionsOverlay isEnabled={captionsEnabled} activeSpeakerName={participantName} />
 
             {/* Dynamic Responsive Video Stage */}
-            <main className="flex-1 relative w-full h-[calc(100dvh-5rem)] overflow-hidden flex bg-[#f8f9fa]">
+            <main className="flex-1 relative w-full h-[calc(100dvh-4.5rem)] sm:h-[calc(100dvh-5rem)] overflow-hidden flex bg-[#f8f9fa]">
               <div className="flex-1 h-full overflow-hidden">
                 <MeetingStage handRaisedUsers={handRaisedUsers} />
               </div>
@@ -670,6 +688,9 @@ export default function App() {
               }
               onOpenSettings={() => setShowSettingsModal(true)}
               onOpenWhiteboard={() => setActiveSidebar('activities')}
+              onOpenAbout={() => {
+                setShowAboutPage(true);
+              }}
             />
 
             {/* Modals */}

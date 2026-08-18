@@ -16,7 +16,7 @@ interface ToastContainerProps {
 
 export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onDismiss }) => {
   return (
-    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 sm:bottom-auto sm:top-6 sm:right-6 sm:left-auto sm:translate-x-0 z-50 flex flex-col gap-2.5 w-[calc(100%-2rem)] max-w-sm pointer-events-none select-none font-sans">
+    <div className="fixed bottom-20 left-1/2 -translate-x-1/2 sm:bottom-auto sm:top-5 sm:right-5 sm:left-auto sm:translate-x-0 z-50 flex flex-col gap-2 w-[calc(100%-2rem)] max-w-sm pointer-events-none select-none font-sans">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
       ))}
@@ -29,9 +29,10 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
   onDismiss,
 }) => {
   useEffect(() => {
+    // Fast dismissal timer: 1800ms
     const timer = setTimeout(() => {
       onDismiss(toast.id);
-    }, 3500);
+    }, 1800);
     return () => clearTimeout(timer);
   }, [toast.id, onDismiss]);
 
@@ -43,21 +44,21 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
   };
 
   const borders = {
-    info: 'border-[#1a73e8]/30 bg-white text-[#202124] shadow-xl',
-    success: 'border-[#188038]/30 bg-white text-[#202124] shadow-xl',
-    warning: 'border-[#f29900]/30 bg-white text-[#202124] shadow-xl',
-    error: 'border-[#c5221f]/30 bg-white text-[#202124] shadow-xl',
+    info: 'border-[#1a73e8]/30 bg-white text-[#202124] shadow-lg',
+    success: 'border-[#188038]/30 bg-white text-[#202124] shadow-lg',
+    warning: 'border-[#f29900]/30 bg-white text-[#202124] shadow-lg',
+    error: 'border-[#c5221f]/30 bg-white text-[#202124] shadow-lg',
   };
 
   return (
     <div
-      className={`pointer-events-auto border px-4 py-3 rounded-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-3 sm:slide-in-from-top-3 duration-200 ${
+      className={`pointer-events-auto border px-3.5 py-2.5 rounded-2xl flex items-center justify-between gap-2.5 animate-in fade-in slide-in-from-bottom-2 sm:slide-in-from-top-2 duration-150 ${
         borders[toast.type]
       }`}
     >
       <div className="flex items-center gap-2.5 min-w-0 flex-1">
         <div className="shrink-0">{icons[toast.type]}</div>
-        <p className="text-xs sm:text-sm font-bold text-[#202124] truncate">{toast.message}</p>
+        <p className="text-xs sm:text-sm font-semibold text-[#202124] truncate">{toast.message}</p>
       </div>
 
       <button
