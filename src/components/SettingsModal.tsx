@@ -19,12 +19,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [selectedAudioOutput, setSelectedAudioOutput] = useState<string>('');
   const [selectedVideoInput, setSelectedVideoInput] = useState<string>('');
 
-  // Audio level meter
-  const [micLevel, setMicLevel] = useState<number>(0);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const micStreamRef = useRef<MediaStream | null>(null);
-  const animFrameRef = useRef<number | null>(null);
-
   // Video preview
   const videoPreviewRef = useRef<HTMLVideoElement | null>(null);
   const videoStreamRef = useRef<MediaStream | null>(null);
@@ -59,71 +53,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
     loadDevices();
   }, [isOpen, selectedAudioInput, selectedAudioOutput, selectedVideoInput]);
-
-  // Audio Meter Setup
-  useEffect(() => {
-    if (!isOpen || activeTab !== 'audio') {
-      if (micStreamRef.current) {
-        micStreamRef.current.getTracks().forEach((t) => t.stop());
-        micStreamRef.current = null;
-      }
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
-      }
-      return;
-    }
-
-    const startMicMeter = async () => {
-      try {
-        const constraints = {
-          audio: selectedAudioInput ? { deviceId: { exact: selectedAudioInput } } : true,
-        };
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        micStreamRef.current = stream;
-
-        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-        const audioCtx = new AudioCtx();
-        audioContextRef.current = audioCtx;
-
-        const source = audioCtx.createMediaStreamSource(stream);
-        const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 256;
-        source.connect(analyser);
-
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-        const checkVolume = () => {
-          analyser.getByteFrequencyData(dataArray);
-          let sum = 0;
-          for (let i = 0; i < dataArray.length; i++) {
-            sum += dataArray[i];
-          }
-          const avg = sum / dataArray.length;
-          setMicLevel(Math.min(100, Math.round((avg / 128) * 100)));
-          animFrameRef.current = requestAnimationFrame(checkVolume);
-        };
-
-        checkVolume();
-      } catch (err) {
-        console.warn('Could not test microphone:', err);
-      }
-    };
-
-    startMicMeter();
-
-    return () => {
-      if (micStreamRef.current) {
-        micStreamRef.current.getTracks().forEach((t) => t.stop());
-        micStreamRef.current = null;
-      }
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
-  }, [isOpen, activeTab, selectedAudioInput]);
 
   // Video Preview Setup
   useEffect(() => {
@@ -233,13 +162,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1 text-[#202124] bg-white">
-          {/* TAB 1: AUDIO */}
+          {/* TAB 1: AUDIO (Clean, No Audio Bars) */}
           {activeTab === 'audio' && (
             <div className="space-y-5">
               {/* Microphone Section */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-[#5f6368] flex items-center gap-2">
-                  <Mic className="w-4 h-4 text-[#1a73e8]" /> Microphone
+                  <Mic className="w-4 h-4 text-[#1a73e8]" /> Microphone Device
                 </label>
                 <select
                   value={selectedAudioInput}
@@ -253,24 +182,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   ))}
                   {audioInputs.length === 0 && <option value="">Default Microphone</option>}
                 </select>
-
-                {/* Mic Volume Meter */}
-                <div className="pt-2 flex items-center gap-3">
-                  <span className="text-[11px] font-medium text-[#5f6368] shrink-0">Input Level:</span>
-                  <div className="flex-1 h-2 bg-[#f1f3f4] rounded-full overflow-hidden border border-[#dadce0]">
-                    <div
-                      className="h-full bg-gradient-to-r from-emerald-500 via-yellow-400 to-rose-500 transition-all duration-75"
-                      style={{ width: `${micLevel}%` }}
-                    />
-                  </div>
-                  <span className="text-[11px] font-mono text-[#5f6368] w-8 text-right font-bold">{micLevel}%</span>
-                </div>
               </div>
 
               {/* Speakers Section */}
               <div className="space-y-2 pt-3 border-t border-[#f1f3f4]">
                 <label className="text-xs font-bold uppercase tracking-wider text-[#5f6368] flex items-center gap-2">
-                  <Volume2 className="w-4 h-4 text-[#1a73e8]" /> Speakers / Output
+                  <Volume2 className="w-4 h-4 text-[#1a73e8]" /> Speakers / Audio Output
                 </label>
                 <div className="flex items-center gap-2">
                   <select
@@ -291,7 +208,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     className="bg-[#e8f0fe] hover:bg-[#d2e3fc] text-[#1967d2] border border-[#d2e3fc] px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shrink-0 shadow-2xs"
                   >
                     <Play className={`w-3.5 h-3.5 ${playingTestTone ? 'animate-spin' : ''}`} />
-                    <span>Test</span>
+                    <span>Test Sound</span>
                   </button>
                 </div>
               </div>

@@ -70,6 +70,9 @@ export default function App() {
   const addToast = (message: string, type: ToastMessage['type'] = 'info') => {
     const id = Math.random().toString(36).substring(2, 9);
     setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 1400);
   };
 
   const removeToast = (id: string) => {

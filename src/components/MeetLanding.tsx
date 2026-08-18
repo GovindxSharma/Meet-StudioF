@@ -203,6 +203,16 @@ export const MeetLanding: React.FC<MeetLandingProps> = ({
         {/* LEFT COLUMN: Main Controls & Inputs */}
         <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-left">
           <div className="space-y-3 sm:space-y-4">
+            {onOpenAbout && (
+              <button
+                type="button"
+                onClick={onOpenAbout}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#e8f0fe] hover:bg-[#d2e3fc] border border-[#d2e3fc] text-[#1967d2] text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-xs"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Meet Studio Story, Workflow & Creator →</span>
+              </button>
+            )}
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-[#202124]">
               Premium video meetings. Now free for everyone.
             </h1>

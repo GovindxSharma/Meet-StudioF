@@ -3,21 +3,18 @@ import {
   Video,
   ArrowLeft,
   Sparkles,
-  Shield,
   Zap,
   Globe,
-  PenTool,
-  Lock,
-  Layers,
   Code2,
   Server,
   Mail,
   ExternalLink,
-  MessageSquare,
-  BarChart2,
-  Smile,
-  Subtitles,
   Heart,
+  Lightbulb,
+  Target,
+  Compass,
+  Workflow,
+  Cpu,
 } from 'lucide-react';
 
 interface AboutPageProps {
@@ -27,203 +24,190 @@ interface AboutPageProps {
 export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
   return (
     <div className="min-h-[100dvh] w-full bg-[#ffffff] text-[#202124] font-sans selection:bg-[#1a73e8] selection:text-white flex flex-col justify-between select-none relative overflow-x-hidden">
-      {/* Background Gradient Header */}
-      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-[#f8f9fa] via-[#e8f0fe]/30 to-transparent pointer-events-none" />
+      {/* Background Subtle Gradient */}
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-[#f8f9fa] via-[#e8f0fe]/40 to-transparent pointer-events-none" />
 
       {/* TOP HEADER */}
       <header className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-4 flex items-center justify-between z-10 border-b border-[#f1f3f4]">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-[#1a73e8] rounded-2xl shadow-md shadow-[#1a73e8]/20 flex items-center justify-center text-white">
+          <div className="p-2 sm:p-2.5 bg-[#1a73e8] rounded-2xl shadow-md shadow-[#1a73e8]/20 flex items-center justify-center text-white">
             <Video className="w-5 h-5" />
           </div>
           <div>
             <span className="text-xl font-bold tracking-tight text-[#202124]">Meet Studio</span>
-            <span className="text-xs text-[#5f6368] block sm:inline sm:ml-2">About & Vision</span>
+            <span className="text-xs text-[#5f6368] block sm:inline sm:ml-2">Story, Ideation & Workflow</span>
           </div>
         </div>
 
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-2 bg-[#f1f3f4] hover:bg-[#e8eaed] text-[#1a73e8] font-bold px-4 py-2 rounded-xl text-xs transition-all active:scale-95 cursor-pointer shadow-xs"
+          className="flex items-center gap-2 bg-[#1a73e8] hover:bg-[#1b66ca] text-white font-bold px-4 py-2 rounded-xl text-xs transition-all active:scale-95 cursor-pointer shadow-md shadow-[#1a73e8]/20"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Meetings</span>
         </button>
       </header>
 
-      {/* MAIN CONTENT CONTAINER */}
+      {/* MAIN STORY & WORKFLOW CONTENT */}
       <main className="max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 z-10 space-y-12 sm:space-y-16 my-auto">
-        {/* HERO SECTION */}
+        {/* SECTION 1: HERO & VISION */}
         <section className="text-center space-y-4 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#e8f0fe] border border-[#d2e3fc] text-[#1967d2] text-xs font-bold shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#f29900]" />
-            <span>The Story Behind Meet Studio</span>
+            <span>Meet Studio Vision & Motive</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#202124] leading-tight">
-            Engineered for seamless, zero-friction video collaboration.
+            How Meet Studio Came to Life
           </h1>
           <p className="text-sm sm:text-lg text-[#5f6368] leading-relaxed">
-            Meet Studio was born from a fundamental idea: video conferencing should be instant, crystal-clear, privacy-first, and completely accessible without paywalls, sign-up barriers, or restrictive meeting time limits.
+            A look into the inception, architecture, end-to-end workflow, and the engineering principles behind building an unmetered, privacy-first, Google-standard video conferencing studio.
           </p>
         </section>
 
-        {/* MOTIVE & VISION SECTION */}
+        {/* SECTION 2: THE IDEATION & MOTIVE (How it came to life) */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-[#f8f9fa] border border-[#dadce0] p-6 rounded-3xl space-y-3 shadow-sm hover:shadow-md transition-shadow">
+          <div className="bg-[#f8f9fa] border border-[#dadce0] p-6 rounded-3xl space-y-3 shadow-xs">
             <div className="w-12 h-12 rounded-2xl bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center shadow-inner">
-              <Zap className="w-6 h-6" />
+              <Lightbulb className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-[#202124]">Zero-Friction Access</h3>
+            <h3 className="text-lg font-bold text-[#202124]">The Spark & Frustration</h3>
             <p className="text-xs sm:text-sm text-[#5f6368] leading-relaxed">
-              No mandatory accounts, cumbersome installs, or 40-minute kickoffs. Generate a secure meeting link and start collaborating within seconds.
+              Mainstream video calling platforms are burdened by artificial 40-minute meeting cutoffs, intrusive account sign-ups, and bloated desktop software. We set out to build a pure browser-native alternative.
             </p>
           </div>
 
-          <div className="bg-[#f8f9fa] border border-[#dadce0] p-6 rounded-3xl space-y-3 shadow-sm hover:shadow-md transition-shadow">
+          <div className="bg-[#f8f9fa] border border-[#dadce0] p-6 rounded-3xl space-y-3 shadow-xs">
             <div className="w-12 h-12 rounded-2xl bg-[#e6f4ea] text-[#188038] flex items-center justify-center shadow-inner">
-              <Lock className="w-6 h-6" />
+              <Target className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-[#202124]">Privacy & Host Knocking</h3>
+            <h3 className="text-lg font-bold text-[#202124]">The Core Objective</h3>
             <p className="text-xs sm:text-sm text-[#5f6368] leading-relaxed">
-              Equipped with end-to-end encrypted WebRTC streams and a built-in waiting room knocked approval system, giving hosts absolute control over call entry.
+              Create a lightning-fast WebRTC studio where anyone can generate a room code with zero friction, experience authentic Google Meet aesthetics, and collaborate without artificial limitations.
             </p>
           </div>
 
-          <div className="bg-[#f8f9fa] border border-[#dadce0] p-6 rounded-3xl space-y-3 shadow-sm hover:shadow-md transition-shadow">
+          <div className="bg-[#f8f9fa] border border-[#dadce0] p-6 rounded-3xl space-y-3 shadow-xs">
             <div className="w-12 h-12 rounded-2xl bg-[#fef7e0] text-[#f29900] flex items-center justify-center shadow-inner">
-              <Globe className="w-6 h-6" />
+              <Compass className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-[#202124]">Ultra-Low Latency SFU</h3>
+            <h3 className="text-lg font-bold text-[#202124]">The Philosophy</h3>
             <p className="text-xs sm:text-sm text-[#5f6368] leading-relaxed">
-              Powered by LiveKit Cloud WebRTC Selective Forwarding Units (SFU), dynamically optimizing bitrates, audio packet routing, and video grids worldwide.
+              Zero clutter, clean light-mode minimalism, privacy by design with knocking approval queues, and collaborative tools (Jamboard & Polls) built straight into the call canvas.
             </p>
           </div>
         </section>
 
-        {/* ARCHITECTURE & TECH STACK SECTION */}
+        {/* SECTION 3: COMPLETE END-TO-END WORKFLOW DIAGRAM */}
         <section className="bg-white border border-[#dadce0] rounded-3xl p-6 sm:p-10 space-y-8 shadow-xl">
-          <div className="space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#202124] tracking-tight flex items-center gap-2">
-              <Layers className="w-7 h-7 text-[#1a73e8]" />
-              <span>Full-Stack Architecture</span>
+          <div className="space-y-2 text-left">
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
+              <Workflow className="w-4 h-4" /> System Workflow
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#202124] tracking-tight">
+              How a Meeting Flows in Meet Studio
             </h2>
             <p className="text-xs sm:text-sm text-[#5f6368]">
-              High-performance, modern infrastructure designed for scale, resilience, and real-time synchronization.
+              Every step from link creation to ultra-low latency WebRTC streaming and host moderation.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl space-y-2">
+            {/* Step 1 */}
+            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3 relative">
+              <div className="w-8 h-8 rounded-full bg-[#1a73e8] text-white flex items-center justify-center text-xs font-bold">
+                1
+              </div>
+              <h4 className="text-sm font-bold text-[#202124]">Room Creation</h4>
+              <p className="text-[11px] text-[#5f6368] leading-relaxed">
+                Host enters name and generates a unique meeting code (`abc-defg-hij`). Backend signs a secure host JWT token with LiveKit admin permissions.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3 relative">
+              <div className="w-8 h-8 rounded-full bg-[#188038] text-white flex items-center justify-center text-xs font-bold">
+                2
+              </div>
+              <h4 className="text-sm font-bold text-[#202124]">Green Room Preview</h4>
+              <p className="text-[11px] text-[#5f6368] leading-relaxed">
+                Participants test camera framing, mirror toggle, and lighting filters before knocking. No audio bars clutter the feed.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3 relative">
+              <div className="w-8 h-8 rounded-full bg-[#f29900] text-white flex items-center justify-center text-xs font-bold">
+                3
+              </div>
+              <h4 className="text-sm font-bold text-[#202124]">Waiting Room Knock</h4>
+              <p className="text-[11px] text-[#5f6368] leading-relaxed">
+                Guests knock on entry. Host hears a Web Audio chime and can Admit or Deny guests via real-time moderation polling.
+              </p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="bg-[#f8f9fa] border border-[#dadce0] p-5 rounded-2xl space-y-3 relative">
+              <div className="w-8 h-8 rounded-full bg-[#a142f4] text-white flex items-center justify-center text-xs font-bold">
+                4
+              </div>
+              <h4 className="text-sm font-bold text-[#202124]">SFU WebRTC Call</h4>
+              <p className="text-[11px] text-[#5f6368] leading-relaxed">
+                Connected via LiveKit Cloud SFU with real-time Whiteboard stroke sync, live Polls, DataChannel chat, and emoji bursts.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 4: FULL-STACK TECHNICAL ARCHITECTURE */}
+        <section className="bg-[#f8f9fa] border border-[#dadce0] rounded-3xl p-6 sm:p-10 space-y-6 shadow-md">
+          <div className="space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#202124] tracking-tight flex items-center gap-2">
+              <Cpu className="w-7 h-7 text-[#1a73e8]" />
+              <span>Full-Stack Technology Stack</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-[#5f6368]">
+              Engineered with modern, reactive, and battle-tested real-time web technologies.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 bg-white border border-[#dadce0] rounded-2xl space-y-2 shadow-2xs">
               <div className="flex items-center gap-2 text-[#1a73e8] font-bold text-xs">
-                <Code2 className="w-4 h-4" /> Frontend
+                <Code2 className="w-4 h-4" /> Frontend Studio
               </div>
               <p className="text-xs font-semibold text-[#202124]">React 19 + TypeScript + Vite</p>
-              <p className="text-[11px] text-[#5f6368]">Tailwind CSS, Material 3 Light Mode styling, Google Sans typography.</p>
+              <p className="text-[11px] text-[#5f6368]">Tailwind CSS, Google Sans typography, responsive mobile bottom sheets.</p>
             </div>
 
-            <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl space-y-2">
+            <div className="p-4 bg-white border border-[#dadce0] rounded-2xl space-y-2 shadow-2xs">
               <div className="flex items-center gap-2 text-[#188038] font-bold text-xs">
-                <Server className="w-4 h-4" /> Backend API
+                <Server className="w-4 h-4" /> Backend Infrastructure
               </div>
               <p className="text-xs font-semibold text-[#202124]">Node.js + Express REST</p>
-              <p className="text-[11px] text-[#5f6368]">JWT token minting, knocking queue store, host moderation endpoints.</p>
+              <p className="text-[11px] text-[#5f6368]">LiveKit Server SDK token issuer, knocking queue, and host endpoints.</p>
             </div>
 
-            <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl space-y-2">
+            <div className="p-4 bg-white border border-[#dadce0] rounded-2xl space-y-2 shadow-2xs">
               <div className="flex items-center gap-2 text-[#a142f4] font-bold text-xs">
-                <Globe className="w-4 h-4" /> Real-Time WebRTC
+                <Globe className="w-4 h-4" /> Global WebRTC Media
               </div>
               <p className="text-xs font-semibold text-[#202124]">LiveKit Cloud SFU</p>
-              <p className="text-[11px] text-[#5f6368]">Simulcast video, audio publishing, and reliable DataChannel broadcasts.</p>
+              <p className="text-[11px] text-[#5f6368]">Simulcast HD video, sub-100ms audio delivery, reliable DataChannel events.</p>
             </div>
 
-            <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl space-y-2">
+            <div className="p-4 bg-white border border-[#dadce0] rounded-2xl space-y-2 shadow-2xs">
               <div className="flex items-center gap-2 text-[#f29900] font-bold text-xs">
                 <Zap className="w-4 h-4" /> Audio Synthesis
               </div>
               <p className="text-xs font-semibold text-[#202124]">Web Audio API Engine</p>
-              <p className="text-[11px] text-[#5f6368]">Zero-asset harmonic chimes for joining, leaving, knocking, and chat.</p>
+              <p className="text-[11px] text-[#5f6368]">Pure synthesized harmonic bells for join, leave, knock alert, and chat pop.</p>
             </div>
           </div>
         </section>
 
-        {/* CORE FEATURES BREAKDOWN */}
-        <section className="space-y-6">
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#202124] tracking-tight">
-              Interactive Features Built In
-            </h2>
-            <p className="text-xs sm:text-sm text-[#5f6368]">
-              Everything you need for productive meetings and collaborative workshops.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl flex items-start gap-3">
-              <div className="p-2 bg-[#e8f0fe] rounded-xl text-[#1a73e8] shrink-0">
-                <PenTool className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-sm font-bold text-[#202124]">Jamboard Whiteboard</h4>
-                <p className="text-[11px] text-[#5f6368] mt-0.5">Real-time collaborative drawing canvas with pen, eraser, and PNG export.</p>
-              </div>
-            </div>
-
-            <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl flex items-start gap-3">
-              <div className="p-2 bg-[#e6f4ea] rounded-xl text-[#188038] shrink-0">
-                <BarChart2 className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-sm font-bold text-[#202124]">Interactive Polls</h4>
-                <p className="text-[11px] text-[#5f6368] mt-0.5">Create instant multiple choice polls and watch live voting percentages.</p>
-              </div>
-            </div>
-
-            <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl flex items-start gap-3">
-              <div className="p-2 bg-[#fef7e0] rounded-xl text-[#f29900] shrink-0">
-                <Smile className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-sm font-bold text-[#202124]">Emoji Reactions</h4>
-                <p className="text-[11px] text-[#5f6368] mt-0.5">Floating emoji particles that rise up across all participants' screens.</p>
-              </div>
-            </div>
-
-            <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl flex items-start gap-3">
-              <div className="p-2 bg-[#f3e8fd] rounded-xl text-[#a142f4] shrink-0">
-                <MessageSquare className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-sm font-bold text-[#202124]">In-Call Real-Time Chat</h4>
-                <p className="text-[11px] text-[#5f6368] mt-0.5">Ephemeral messaging over DataChannel with unread badge counter.</p>
-              </div>
-            </div>
-
-            <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl flex items-start gap-3">
-              <div className="p-2 bg-[#e8f0fe] rounded-xl text-[#1a73e8] shrink-0">
-                <Subtitles className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-sm font-bold text-[#202124]">Live Closed Captions</h4>
-                <p className="text-[11px] text-[#5f6368] mt-0.5">Real-time speech-to-text transcript bar with active speaker identification.</p>
-              </div>
-            </div>
-
-            <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl flex items-start gap-3">
-              <div className="p-2 bg-[#fce8e6] rounded-xl text-[#c5221f] shrink-0">
-                <Shield className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs sm:text-sm font-bold text-[#202124]">Host Controls & Moderation</h4>
-                <p className="text-[11px] text-[#5f6368] mt-0.5">Knock approval, Mute all, remote mute, user kick, and End Call for everyone.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CREATOR & CONTACTS SECTION */}
-        <section className="bg-gradient-to-br from-[#f8f9fa] to-[#e8f0fe]/40 border border-[#dadce0] rounded-3xl p-6 sm:p-10 space-y-6 shadow-xl text-center sm:text-left">
+        {/* SECTION 5: CREATOR PROFILE & CONTACTS */}
+        <section className="bg-gradient-to-br from-[#ffffff] via-[#f8f9fa] to-[#e8f0fe]/50 border border-[#dadce0] rounded-3xl p-6 sm:p-10 space-y-6 shadow-xl text-center sm:text-left">
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-[#1a73e8] to-[#188038] p-1 shadow-lg shrink-0">
               <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-3xl font-extrabold text-[#1a73e8]">
@@ -235,16 +219,16 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 <h3 className="text-2xl font-extrabold text-[#202124]">Govind Sharma</h3>
                 <span className="text-xs bg-[#e8f0fe] text-[#1967d2] font-bold px-2.5 py-0.5 rounded-full border border-[#d2e3fc]">
-                  Creator & Full-Stack Engineer
+                  Creator & Full-Stack Architect
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-[#5f6368] leading-relaxed">
-                Passionate about architecting high-performance real-time applications, low-latency WebRTC media pipelines, and scalable cloud systems.
+                Full-Stack Engineer with a passion for designing resilient real-time distributed applications, low-latency WebRTC media pipelines, and scalable cloud systems.
               </p>
             </div>
           </div>
 
-          {/* Social / Contact Links */}
+          {/* Social & Contact Links */}
           <div className="pt-4 border-t border-[#dadce0] flex flex-wrap items-center justify-center sm:justify-start gap-3">
             <a
               href="https://github.com/GovindxSharma"
@@ -272,7 +256,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
               onClick={onBack}
               className="flex items-center gap-2 bg-[#1a73e8] hover:bg-[#1b66ca] text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-md shadow-[#1a73e8]/20 transition-all active:scale-95 cursor-pointer ml-auto"
             >
-              <span>Start Meeting Now</span>
+              <span>Launch a Meeting</span>
               <ArrowLeft className="w-4 h-4 rotate-180" />
             </button>
           </div>
